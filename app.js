@@ -1,6 +1,8 @@
 const SHEET_ID = '1uWbVwsJ6mgUl9WxJz-zbxMaiCW-dG3DI_9gvKkEca18';
 const SHEET_GID = '2046046325';
 const LIVE_CSV = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${SHEET_GID}`;
+const MAP_CSV = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&gid=${SHEET_GID}&tq=select%20B,E,F,G,J,K,L%20offset%202`;
+const BROWSER_CACHE_KEY = 'aces-cmdb-map-v1';
 
 const PROVINCE_TO_REGION = {
   'sa-sh': 'East', 'sa-hs': 'East',
@@ -63,15 +65,43 @@ function rowsToAssets(rows) {
 }
 
 async function loadAssets() {
-  const cacheFiles = ['central', 'east', 'south', 'west'];
-  const cachedResponses = await Promise.all(cacheFiles.map(name => fetch(`cache/${name}.json`, { cache: 'force-cache' })));
-  if (cachedResponses.some(response => !response.ok)) throw new Error('CMDB snapshot unavailable');
-  assets = (await Promise.all(cachedResponses.map(response => response.json()))).flat();
-  $('#data-state').textContent = `${assets.length} assets · Syncing`;
+  renderMap();
+  let hasCachedAssets = false;
+  try {
+    const cached = JSON.parse(localStorage.getItem(BROWSER_CACHE_KEY) || '[]');
+    if (Array.isArray(cached) && cached.length) {
+      assets = cached;
+      hasCachedAssets = true;
+      applyAssetData(`${assets.length} assets · Updating`);
+    }
+  } catch (error) { console.warn('Browser cache unavailable', error); }
+
+  let response;
+  try {
+    response = await fetch(MAP_CSV, { cache: 'no-store' });
+    if (!response.ok) throw new Error('Live CMDB unavailable');
+  } catch (error) {
+    if (hasCachedAssets) {
+      $('#data-state').textContent = `${assets.length} assets · Cached CMDB`;
+      return;
+    }
+    throw error;
+  }
+  const rows = parseCSV(await response.text());
+  assets = rows.slice(1).map(row => ({
+    id: normalize(row[0]), region: regionName(row[1]), District: normalize(row[2]), City: normalize(row[3]),
+    lat: Number(row[4]), lon: Number(row[5]), status: normalize(row[6])
+  })).filter(asset => asset.id && Number.isFinite(asset.lat) && Number.isFinite(asset.lon));
+  localStorage.setItem(BROWSER_CACHE_KEY, JSON.stringify(assets));
+  applyAssetData(`${assets.length} assets · Live CMDB`);
+  window.setTimeout(refreshLiveData, 50);
+}
+
+function applyAssetData(stateText) {
+  $('#data-state').textContent = stateText;
   $('#loading').hidden = true;
   updateCounts();
-  renderMap();
-  window.setTimeout(refreshLiveData, 250);
+  if (chart?.series?.[1]) chart.series[1].setData(buildMapPoints(), true, false, false);
 }
 
 async function refreshLiveData() {
@@ -81,9 +111,8 @@ async function refreshLiveData() {
     const freshAssets = rowsToAssets(parseCSV(await response.text()));
     if (!freshAssets.length) throw new Error('Live CMDB returned no assets');
     assets = freshAssets;
-    updateCounts();
-    if (chart?.series?.[1]) chart.series[1].setData(buildMapPoints(), true, false, false);
-    $('#data-state').textContent = `${assets.length} assets · Live CMDB`;
+    localStorage.setItem(BROWSER_CACHE_KEY, JSON.stringify(assets));
+    applyAssetData(`${assets.length} assets · Live CMDB`);
   } catch (error) {
     $('#data-state').textContent = `${assets.length} assets · Cached CMDB`;
     console.warn(error);
