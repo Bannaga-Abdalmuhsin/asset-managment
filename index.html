@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="ACES COW asset map for Saudi Arabia" />
+  <title>ACES Asset Management</title>
+  <link rel="preconnect" href="https://code.highcharts.com" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main class="app-shell">
+    <header class="topbar">
+      <a class="brand" href="#" aria-label="Asset Management home">
+        <span class="brand-mark">A</span>
+        <span><strong>Asset Management</strong><small>Kingdom COW Network</small></span>
+      </a>
+
+      <div class="search-wrap" role="search">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m21 21-4.35-4.35m2.35-5.65a8 8 0 1 1-16 0 8 8 0 0 1 16 0Z"/></svg>
+        <input id="site-search" type="search" placeholder="Search site ID — e.g. COW001" autocomplete="off" aria-label="Search COW site" />
+        <kbd>/</kbd>
+        <div id="suggestions" class="suggestions" hidden></div>
+      </div>
+
+      <div class="live-state"><span></span><b id="data-state">Loading CMDB</b></div>
+    </header>
+
+    <section class="map-stage" aria-label="Saudi Arabia COW sites map">
+      <div class="map-heading">
+        <div>
+          <p>National asset view</p>
+          <h1>Kingdom of Saudi Arabia</h1>
+        </div>
+        <div class="legend" aria-label="Site status legend">
+          <span><i class="dot online"></i>ON-AIR</span>
+          <span><i class="dot offline"></i>OFF-AIR</span>
+        </div>
+      </div>
+
+      <div class="map-frame">
+        <div id="map" aria-live="polite"></div>
+        <div id="loading" class="loading-card"><span class="spinner"></span>Loading live assets…</div>
+
+        <div class="region-strip" aria-label="Regional site totals">
+          <button data-region="Central"><span class="region-swatch central"></span><b>Central</b><small id="count-central">—</small></button>
+          <button data-region="East"><span class="region-swatch east"></span><b>East</b><small id="count-east">—</small></button>
+          <button data-region="South"><span class="region-swatch south"></span><b>South</b><small id="count-south">—</small></button>
+          <button data-region="West"><span class="region-swatch west"></span><b>West</b><small id="count-west">—</small></button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <aside id="details" class="details-panel" aria-label="Site details" aria-hidden="true">
+    <button id="close-details" class="close-button" aria-label="Close site details">×</button>
+    <div id="details-content"></div>
+  </aside>
+  <div id="backdrop" class="backdrop"></div>
+  <div id="toast" class="toast" role="status"></div>
+
+  <script src="https://code.highcharts.com/maps/highmaps.js"></script>
+  <script src="https://code.highcharts.com/mapdata/countries/sa/sa-all.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
