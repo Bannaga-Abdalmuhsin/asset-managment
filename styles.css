@@ -56,6 +56,7 @@ button, input { font: inherit; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
 .leaflet-container { font-family: inherit; }
+.leaflet-tile-pane { filter: brightness(.52) saturate(.55) contrast(1.12); }
 .leaflet-top.leaflet-right { top: 72px; }
 .leaflet-control-zoom, .leaflet-control-layers { border: 1px solid rgba(255,255,255,.14) !important; border-radius: 12px !important; overflow: hidden; box-shadow: 0 10px 28px rgba(0,0,0,.35) !important; }
 .leaflet-control-zoom a, .leaflet-control-layers { color: #eaf0f5 !important; background: rgba(8,17,28,.92) !important; border-color: rgba(255,255,255,.1) !important; }
@@ -72,7 +73,7 @@ button, input { font: inherit; }
 .marker-cluster-small, .marker-cluster-medium, .marker-cluster-large { background: rgba(73,101,126,.45); }
 .marker-cluster-small div, .marker-cluster-medium div, .marker-cluster-large div { background: rgba(22,39,54,.9); }
 
-.region-strip { position: absolute; z-index: 9; left: 50%; bottom: 22px; transform: translateX(-50%); display: flex; gap: 4px; padding: 5px; border: 1px solid var(--line); border-radius: 16px; background: rgba(7,16,27,.87); backdrop-filter: blur(16px); box-shadow: 0 15px 45px rgba(0,0,0,.3); }
+.region-strip { position: absolute; z-index: 1000; left: 50%; bottom: 22px; transform: translateX(-50%); display: flex; gap: 4px; padding: 5px; border: 1px solid var(--line); border-radius: 16px; background: rgba(7,16,27,.87); backdrop-filter: blur(16px); box-shadow: 0 15px 45px rgba(0,0,0,.3); }
 .region-strip button { min-width: 118px; display: grid; grid-template-columns: 9px 1fr auto; align-items: center; gap: 8px; padding: 10px 12px; border: 0; border-radius: 11px; color: white; background: transparent; cursor: pointer; }
 .region-strip button:hover, .region-strip button.selected { background: rgba(255,255,255,.075); }
 .region-strip b { text-align: left; font-size: .78rem; }
