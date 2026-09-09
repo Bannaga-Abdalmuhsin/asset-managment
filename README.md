@@ -4,7 +4,7 @@ A focused Saudi Arabia asset map for ACES COW sites. The page reads the CMDB Goo
 
 ## Data source
 
-The app reads Google Sheet `gid=2046046325` directly, so searches and site details reflect the current CMDB.
+The app opens from a repository snapshot for fast initial rendering, then refreshes silently from Google Sheet `gid=2046046325`, so searches and site details reflect the current CMDB without delaying the map.
 
 ## GitHub Pages
 
