@@ -51,6 +51,7 @@ button, input { font: inherit; }
 .map-frame { position: absolute; inset: 0; perspective: 1200px; }
 #map { position: absolute; inset: 30px 10px 58px; filter: drop-shadow(0 32px 24px rgba(0,0,0,.38)); transform: rotateX(6deg) scale(.98); transform-origin: 50% 55%; }
 .loading-card { position: absolute; left: 50%; top: 50%; z-index: 10; transform: translate(-50%,-50%); display: flex; align-items: center; gap: 11px; padding: 14px 18px; border: 1px solid var(--line); border-radius: 14px; background: rgba(8,17,28,.9); color: #b3bfcb; font-size: .85rem; }
+.loading-card[hidden] { display: none; }
 .spinner { width: 17px; height: 17px; border: 2px solid rgba(255,255,255,.15); border-top-color: #fff; border-radius: 50%; animation: spin .8s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
