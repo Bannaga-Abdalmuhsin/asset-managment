@@ -63,13 +63,30 @@ function rowsToAssets(rows) {
 }
 
 async function loadAssets() {
-  const response = await fetch(LIVE_CSV, { cache: 'no-store' });
-  if (!response.ok) throw new Error('Live CMDB unavailable');
-  assets = rowsToAssets(parseCSV(await response.text()));
-  $('#data-state').textContent = `${assets.length} assets · Live CMDB`;
+  const cachedResponse = await fetch('site-cache.json', { cache: 'force-cache' });
+  if (!cachedResponse.ok) throw new Error('CMDB snapshot unavailable');
+  assets = await cachedResponse.json();
+  $('#data-state').textContent = `${assets.length} assets · Syncing`;
   $('#loading').hidden = true;
   updateCounts();
   renderMap();
+  window.setTimeout(refreshLiveData, 250);
+}
+
+async function refreshLiveData() {
+  try {
+    const response = await fetch(LIVE_CSV, { cache: 'no-store' });
+    if (!response.ok) throw new Error('Live CMDB unavailable');
+    const freshAssets = rowsToAssets(parseCSV(await response.text()));
+    if (!freshAssets.length) throw new Error('Live CMDB returned no assets');
+    assets = freshAssets;
+    updateCounts();
+    if (chart?.series?.[1]) chart.series[1].setData(buildMapPoints(), true, false, false);
+    $('#data-state').textContent = `${assets.length} assets · Live CMDB`;
+  } catch (error) {
+    $('#data-state').textContent = `${assets.length} assets · Cached CMDB`;
+    console.warn(error);
+  }
 }
 
 function updateCounts() {
@@ -85,13 +102,7 @@ function renderMap() {
     const region = PROVINCE_TO_REGION[area.properties['hc-key']] || 'Other';
     return { ...area, value: region, color: REGION_COLORS[region], custom: { region } };
   });
-  const points = assets.map(asset => ({
-    name: asset.id,
-    lat: asset.lat,
-    lon: asset.lon,
-    color: isOnAir(asset.status) ? '#32d583' : '#f04438',
-    custom: { asset }
-  }));
+  const points = buildMapPoints();
 
   chart = Highcharts.mapChart('map', {
     chart: { map: mapData, backgroundColor: 'transparent', spacing: [10,10,10,10], animation: true },
@@ -121,6 +132,16 @@ function renderMap() {
       { type: 'mappoint', name: 'COW Sites', data: points, turboThreshold: 1000 }
     ]
   });
+}
+
+function buildMapPoints() {
+  return assets.map(asset => ({
+    name: asset.id,
+    lat: asset.lat,
+    lon: asset.lon,
+    color: isOnAir(asset.status) ? '#32d583' : '#f04438',
+    custom: { asset }
+  }));
 }
 
 function focusRegion(region) {
