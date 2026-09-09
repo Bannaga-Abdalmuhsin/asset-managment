@@ -63,9 +63,10 @@ function rowsToAssets(rows) {
 }
 
 async function loadAssets() {
-  const cachedResponse = await fetch('site-cache.json', { cache: 'force-cache' });
-  if (!cachedResponse.ok) throw new Error('CMDB snapshot unavailable');
-  assets = await cachedResponse.json();
+  const cacheFiles = ['central', 'east', 'south', 'west'];
+  const cachedResponses = await Promise.all(cacheFiles.map(name => fetch(`cache/${name}.json`, { cache: 'force-cache' })));
+  if (cachedResponses.some(response => !response.ok)) throw new Error('CMDB snapshot unavailable');
+  assets = (await Promise.all(cachedResponses.map(response => response.json()))).flat();
   $('#data-state').textContent = `${assets.length} assets · Syncing`;
   $('#loading').hidden = true;
   updateCounts();
