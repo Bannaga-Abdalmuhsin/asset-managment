@@ -131,19 +131,25 @@ function updateCounts() {
 }
 
 function renderMap() {
-  const kingdomBounds = L.latLngBounds([15.2, 34.2], [33.4, 56.8]);
-  map = L.map('map', { zoomControl: false, minZoom: 5, maxZoom: 18, maxBounds: kingdomBounds.pad(.08), maxBoundsViscosity: 1, preferCanvas: true });
+  const kingdomBounds = L.latLngBounds([16.0, 34.4], [32.6, 55.8]);
+  map = L.map('map', { zoomControl: false, minZoom: 5, maxZoom: 18, zoomSnap: .25, zoomDelta: .5, maxBounds: kingdomBounds.pad(.16), maxBoundsViscosity: 1, preferCanvas: true });
   L.control.zoom({ position: 'topright' }).addTo(map);
   L.control.scale({ position: 'bottomleft', metric: true, imperial: false }).addTo(map);
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-    attribution: '&copy; OpenStreetMap &copy; CARTO', subdomains: 'abcd', maxZoom: 20
+  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; OpenStreetMap contributors', maxZoom: 19
   }).addTo(map);
   onlineLayer = L.markerClusterGroup({ chunkedLoading: true, maxClusterRadius: 38, disableClusteringAtZoom: 12 });
   offlineLayer = L.markerClusterGroup({ chunkedLoading: true, maxClusterRadius: 38, disableClusteringAtZoom: 12 });
   map.addLayer(onlineLayer); map.addLayer(offlineLayer);
   L.control.layers(null, { 'ON-AIR Sites': onlineLayer, 'OFF-AIR Sites': offlineLayer }, { position: 'topright', collapsed: true }).addTo(map);
-  map.fitBounds(kingdomBounds, { padding: [18,18] });
-  fetch('https://code.highcharts.com/mapdata/countries/sa/sa-all.geo.json').then(response => response.json()).then(geojson => {
+  map.fitBounds(kingdomBounds, { padding: [28,28], maxZoom: 6.5 });
+  Promise.all([
+    fetch('https://raw.githubusercontent.com/johan/world.geo.json/master/countries/SAU.geo.json').then(response => response.json()),
+    fetch('https://code.highcharts.com/mapdata/countries/sa/sa-all.geo.json').then(response => response.json())
+  ]).then(([country, geojson]) => {
+    const hole = country.features[0].geometry.coordinates[0].map(([lng, lat]) => [lat, lng]);
+    const outside = [[-85,-180],[-85,180],[85,180],[85,-180]];
+    L.polygon([outside, hole], { stroke: false, fillColor: '#06101b', fillOpacity: .9, interactive: false }).addTo(map);
     regionLayer = L.geoJSON(geojson, {
       style(feature) {
         const region = PROVINCE_TO_REGION[feature.properties['hc-key']] || 'Other';
@@ -155,7 +161,6 @@ function renderMap() {
         layer.on({ mouseover: () => layer.setStyle({ fillOpacity: .38, weight: 2 }), mouseout: () => regionLayer.resetStyle(layer) });
       }
     }).addTo(map);
-    regionLayer.bringToBack();
   }).catch(error => console.warn('Regional boundaries unavailable', error));
 }
 
