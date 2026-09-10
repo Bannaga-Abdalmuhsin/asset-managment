@@ -1,8 +1,4 @@
-const SHEET_ID = '1uWbVwsJ6mgUl9WxJz-zbxMaiCW-dG3DI_9gvKkEca18';
-const SHEET_GID = '2046046325';
-const LIVE_CSV = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${SHEET_GID}`;
-const MAP_CSV = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&gid=${SHEET_GID}&tq=select%20B,E,F,G,J,K,L%20offset%202`;
-const BROWSER_CACHE_KEY = 'aces-cmdb-map-v1';
+const MAP_API = './api/assets/map';
 
 const PROVINCE_TO_REGION = {
   'sa-sh': 'East', 'sa-hs': 'East',
@@ -12,9 +8,7 @@ const PROVINCE_TO_REGION = {
 };
 
 const REGION_COLORS = { Central: '#6889d8', East: '#26a69a', South: '#d98b45', West: '#9b72cf', Other: '#304458' };
-const HEADER_ROW = 2;
 let assets = [];
-let headers = [];
 let map;
 let regionLayer;
 let onlineLayer;
@@ -33,72 +27,15 @@ const regionName = region => {
   return 'Other';
 };
 
-function parseCSV(text) {
-  const rows = [];
-  let row = [], value = '', quoted = false;
-  for (let i = 0; i < text.length; i++) {
-    const char = text[i];
-    if (quoted) {
-      if (char === '"' && text[i + 1] === '"') { value += '"'; i++; }
-      else if (char === '"') quoted = false;
-      else value += char;
-    } else if (char === '"') quoted = true;
-    else if (char === ',') { row.push(value); value = ''; }
-    else if (char === '\n') { row.push(value.replace(/\r$/, '')); rows.push(row); row = []; value = ''; }
-    else value += char;
-  }
-  if (value || row.length) { row.push(value); rows.push(row); }
-  return rows;
-}
-
-function rowsToAssets(rows) {
-  headers = rows[HEADER_ROW].map(normalize);
-  const index = Object.fromEntries(headers.map((name, i) => [name, i]));
-  return rows.slice(HEADER_ROW + 1).map(row => {
-    const record = {};
-    headers.forEach((header, i) => { if (header) record[header] = normalize(row[i]); });
-    return {
-      ...record,
-      id: normalize(row[index['COW ID']]),
-      lat: Number(row[index['Latitude']]),
-      lon: Number(row[index['Longitude']]),
-      status: normalize(row[index['Site Status']]),
-      region: regionName(row[index['Region']])
-    };
-  }).filter(asset => asset.id && Number.isFinite(asset.lat) && Number.isFinite(asset.lon));
-}
-
 async function loadAssets() {
   renderMap();
-  let hasCachedAssets = false;
-  try {
-    const cached = JSON.parse(localStorage.getItem(BROWSER_CACHE_KEY) || '[]');
-    if (Array.isArray(cached) && cached.length) {
-      assets = cached;
-      hasCachedAssets = true;
-      applyAssetData(`${assets.length} assets · Updating`);
-    }
-  } catch (error) { console.warn('Browser cache unavailable', error); }
-
-  let response;
-  try {
-    response = await fetch(MAP_CSV, { cache: 'no-store' });
-    if (!response.ok) throw new Error('Live CMDB unavailable');
-  } catch (error) {
-    if (hasCachedAssets) {
-      $('#data-state').textContent = `${assets.length} assets · Cached CMDB`;
-      return;
-    }
-    throw error;
-  }
-  const rows = parseCSV(await response.text());
-  assets = rows.slice(1).map(row => ({
-    id: normalize(row[0]), region: regionName(row[1]), District: normalize(row[2]), City: normalize(row[3]),
-    lat: Number(row[4]), lon: Number(row[5]), status: normalize(row[6])
-  })).filter(asset => asset.id && Number.isFinite(asset.lat) && Number.isFinite(asset.lon));
-  localStorage.setItem(BROWSER_CACHE_KEY, JSON.stringify(assets));
+  const response = await fetch(MAP_API, { cache: 'no-store', credentials: 'include', headers: { Accept: 'application/json' } });
+  if (!response.ok) throw new Error('Secure CMDB API unavailable');
+  const payload = await response.json();
+  const records = Array.isArray(payload) ? payload : payload.assets;
+  if (!Array.isArray(records)) throw new Error('Invalid CMDB API response');
+  assets = records.map(asset => ({ ...asset, id: normalize(asset.id), region: regionName(asset.region), lat: Number(asset.lat), lon: Number(asset.lon), status: normalize(asset.status) })).filter(asset => asset.id && Number.isFinite(asset.lat) && Number.isFinite(asset.lon));
   applyAssetData(`${assets.length} assets · Live CMDB`);
-  window.setTimeout(refreshLiveData, 50);
 }
 
 function applyAssetData(stateText) {
@@ -106,21 +43,6 @@ function applyAssetData(stateText) {
   $('#loading').hidden = true;
   updateCounts();
   drawMarkers();
-}
-
-async function refreshLiveData() {
-  try {
-    const response = await fetch(LIVE_CSV, { cache: 'no-store' });
-    if (!response.ok) throw new Error('Live CMDB unavailable');
-    const freshAssets = rowsToAssets(parseCSV(await response.text()));
-    if (!freshAssets.length) throw new Error('Live CMDB returned no assets');
-    assets = freshAssets;
-    localStorage.setItem(BROWSER_CACHE_KEY, JSON.stringify(assets));
-    applyAssetData(`${assets.length} assets · Live CMDB`);
-  } catch (error) {
-    $('#data-state').textContent = `${assets.length} assets · Cached CMDB`;
-    console.warn(error);
-  }
 }
 
 function updateCounts() {
@@ -153,14 +75,18 @@ function renderMap() {
     regionLayer = L.geoJSON(geojson, {
       style(feature) {
         const region = PROVINCE_TO_REGION[feature.properties['hc-key']] || 'Other';
-        return { color: '#d3dce5', weight: 1.15, opacity: .7, fillColor: REGION_COLORS[region], fillOpacity: .2 };
+        return { color: '#d3dce5', weight: 1.35, opacity: .82, fillColor: REGION_COLORS[region], fillOpacity: .3 };
       },
       onEachFeature(feature, layer) {
         const region = PROVINCE_TO_REGION[feature.properties['hc-key']] || 'Other';
         layer.bindTooltip(`${region} Region · ${feature.properties.name}`, { sticky: true });
-        layer.on({ mouseover: () => layer.setStyle({ fillOpacity: .38, weight: 2 }), mouseout: () => regionLayer.resetStyle(layer) });
+        layer.on({ mouseover: () => layer.setStyle({ fillOpacity: .5, weight: 2 }), mouseout: () => regionLayer.resetStyle(layer), click: () => focusRegion(region) });
       }
     }).addTo(map);
+    [['Central',[24.55,45.25]],['East',[25.1,50.45]],['West',[24.6,39.2]],['South',[19.25,43.5]]].forEach(([name, point]) => L.marker(point, {
+      interactive: false,
+      icon: L.divIcon({ className: 'region-label', html: `<span>${name}</span>`, iconSize: [90,28], iconAnchor: [45,14] })
+    }).addTo(map));
   }).catch(error => console.warn('Regional boundaries unavailable', error));
 }
 
@@ -206,32 +132,7 @@ function renderSuggestions(results) {
 function openDetails(asset, zoom = false) {
   if (!asset) return;
   $('#suggestions').hidden = true;
-  $('#site-search').value = asset.id;
-  const statusClass = isOnAir(asset.status) ? 'on' : 'off';
-  const preferred = [
-    'Site Label','EBU/Royal','Region','District','City','Site Status','Last Deploying Date','COW OLD/NEW','Vendor','V-Sat',
-    '2G/3G/LTE/5G','Tower Height','Shelter/Outdoor','SEC connection','MDB Type & Status','PG Status','Genset QTY','ACES TG',
-    'Genset Make','Capacity','Fuel Tank capacity','AC Make','AC Type Split/Package','Qty','HVAC Status','Installed BBU',
-    'BBU Volt & Capacity (AH)','No of Strings','BBU Status','BBU Backup Time','DC Power Brand','Installed Rectifiers','Required Rectifiers',
-    'Fire Panel Status','Cylinder Status Filled Or Empty Or Expired','Security Light Status','Rented Land','VEHICAL MAKE','PLATE #','TOWER TYPE','GPS Status','FE ID','MW Dish','MW Frequency','MW Link Type','Remarks'
-  ];
-  const items = preferred.filter(key => asset[key]).map(key => `<div class="detail-item"><label>${escapeHTML(key)}</label><div>${escapeHTML(asset[key])}</div></div>`).join('');
-  $('#details-content').innerHTML = `
-    <p class="site-kicker">${escapeHTML(asset.region)} Region</p>
-    <div class="site-title-row"><h2>${escapeHTML(asset.id)}</h2><span class="status-pill ${statusClass}">${escapeHTML(asset.status || 'UNKNOWN')}</span></div>
-    <p class="site-location">${escapeHTML([asset.District, asset.City].filter(Boolean).join(' · ') || 'Location not specified')}</p>
-    <section class="detail-section"><h3>CMDB Asset Details</h3><div class="detail-grid">${items || '<p>No additional details available.</p>'}</div></section>
-    <a class="map-link" href="https://www.google.com/maps?q=${asset.lat},${asset.lon}" target="_blank" rel="noopener">Open coordinates ↗</a>`;
-  $('#details').classList.add('open'); $('#details').setAttribute('aria-hidden','false'); $('#backdrop').classList.add('open');
-  if (zoom && map) {
-    map.flyTo([asset.lat, asset.lon], 14, { duration: 1.1 });
-    const marker = markerById.get(asset.id);
-    if (marker) window.setTimeout(() => marker.openTooltip(), 1150);
-  }
-}
-
-function closeDetails() {
-  $('#details').classList.remove('open'); $('#details').setAttribute('aria-hidden','true'); $('#backdrop').classList.remove('open');
+  window.location.assign(`site.html?site=${encodeURIComponent(asset.id)}`);
 }
 
 function escapeHTML(value) {
@@ -253,7 +154,7 @@ $('#site-search').addEventListener('keydown', event => {
   if (event.key === 'Enter') {
     const match = searchAssets(event.target.value)[0];
     if (match) openDetails(match, true); else showToast('Site not found in CMDB');
-  } else if (event.key === 'Escape') { $('#suggestions').hidden = true; closeDetails(); }
+  } else if (event.key === 'Escape') { $('#suggestions').hidden = true; }
 });
 $('#suggestions').addEventListener('click', event => {
   const button = event.target.closest('[data-site]');
@@ -261,14 +162,11 @@ $('#suggestions').addEventListener('click', event => {
 });
 document.addEventListener('keydown', event => {
   if (event.key === '/' && document.activeElement !== $('#site-search')) { event.preventDefault(); $('#site-search').focus(); }
-  if (event.key === 'Escape') closeDetails();
 });
 document.addEventListener('click', event => { if (!event.target.closest('.search-wrap')) $('#suggestions').hidden = true; });
 document.querySelectorAll('.region-strip button').forEach(button => button.addEventListener('click', () => focusRegion(button.dataset.region)));
-$('#close-details').addEventListener('click', closeDetails); $('#backdrop').addEventListener('click', closeDetails);
-
 loadAssets().catch(error => {
-  $('#loading').innerHTML = 'Unable to load CMDB data';
-  $('#data-state').textContent = 'CMDB unavailable';
+  $('#loading').innerHTML = 'Secure CMDB API not configured';
+  $('#data-state').textContent = 'Secure API required';
   console.error(error);
 });
