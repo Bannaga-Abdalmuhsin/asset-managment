@@ -81,6 +81,9 @@ button, input { font: inherit; }
 .region-swatch { width: 8px; height: 24px; border-radius: 5px; }
 .central { background: #6889d8; }.east { background: #26a69a;}.south { background: #d98b45;}.west { background: #9b72cf;}
 
+.region-label { background: transparent; border: 0; }
+.region-label span { display: block; width: max-content; padding: 6px 10px; border: 1px solid rgba(255,255,255,.24); border-radius: 8px; color: #fff; background: rgba(5,13,22,.76); box-shadow: 0 5px 20px rgba(0,0,0,.3); font-size: .74rem; font-weight: 800; letter-spacing: .05em; text-transform: uppercase; }
+
 .details-panel { position: fixed; top: 0; right: 0; z-index: 50; width: min(460px, 94vw); height: 100vh; padding: 30px; overflow: auto; background: rgba(9,17,28,.98); border-left: 1px solid var(--line); box-shadow: -30px 0 80px rgba(0,0,0,.46); transform: translateX(105%); transition: transform .3s cubic-bezier(.22,.9,.3,1); }
 .details-panel.open { transform: translateX(0); }
 .backdrop { position: fixed; inset: 0; z-index: 40; background: rgba(0,0,0,.32); opacity: 0; pointer-events: none; transition: opacity .25s; }
