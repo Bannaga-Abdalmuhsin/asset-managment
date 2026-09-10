@@ -1,6 +1,8 @@
 # ACES Asset Management
 
-A focused Saudi Arabia asset map for ACES COW sites. The page reads the CMDB Google Sheet live, displays ON-AIR sites in green and all non-ON-AIR sites in red, and opens the complete available CMDB record when a site is searched or selected.
+A Saudi Arabia COW asset management prototype with an interactive regional Leaflet map and dedicated, system-categorized CMDB asset records. ON-AIR sites are green and all non-ON-AIR sites are red.
+
+The public GitHub Pages deployment is a prototype only. Review [SECURITY.md](SECURITY.md) before any STC system integration; production requires private hosting, STC SSO/RBAC, and a secured CMDB API rather than browser-direct spreadsheet access.
 
 ## Data source
 
