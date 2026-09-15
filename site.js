@@ -12,6 +12,7 @@ const normalize = value => String(value ?? '').replace(/\s+/g,' ').trim();
 function parseCSV(text) { const rows=[]; let row=[],value='',quoted=false; for(let i=0;i<text.length;i++){const c=text[i]; if(quoted){if(c==='"'&&text[i+1]==='"'){value+='"';i++;}else if(c==='"')quoted=false;else value+=c;}else if(c==='"')quoted=true;else if(c===','){row.push(value);value='';}else if(c==='\n'){row.push(value.replace(/\r$/,''));rows.push(row);row=[];value='';}else value+=c;} if(value||row.length){row.push(value);rows.push(row);} return rows; }
 function create(tag,className,text){const el=document.createElement(tag);if(className)el.className=className;if(text!==undefined)el.textContent=text;return el;}
 function fieldValue(record,requested){if(record[requested]!==undefined)return normalize(record[requested]);const key=Object.keys(record).find(name=>normalize(name).toLowerCase()===requested.toLowerCase());return key?normalize(record[key]):'';}
+function hasData(value){return value!==''&&!['n/a','na','none','null','undefined','-','--','not recorded','unknown'].includes(value.toLowerCase());}
 function renderRecord(record){
   const id=fieldValue(record,'COW ID'),status=fieldValue(record,'Site Status')||'UNKNOWN';
   document.title=`${id} · Asset Record`; document.querySelector('#record-id').textContent=id;
@@ -33,8 +34,8 @@ function renderRecord(record){
     button.type='button';button.dataset.category=index;button.setAttribute('role','tab');button.setAttribute('aria-controls',anchor);
     const shortTitle=title.split(' & ')[0].split(',')[0];button.append(create('strong','',shortTitle),create('small','',index<3?'Priority telecom asset':`${fields.length} attributes`));
     button.addEventListener('click',()=>selectCategory(index));(index<3?priority:secondary).appendChild(button);
-    const card=create('section','system-card');card.id=anchor;card.hidden=index!==0;const header=create('header');header.append(create('h2','',title),create('span','',`${fields.length} attributes`));card.appendChild(header);
-    const grid=create('div','system-grid');fields.forEach(label=>{const item=create('div','system-field'),value=fieldValue(record,label);item.append(create('label','',label),create('div',value?'':'empty',value||'Not recorded'));grid.appendChild(item);});card.appendChild(grid);categories.appendChild(card);cards.push(card);
+    const card=create('section','system-card');card.id=anchor;card.hidden=index!==0;const header=create('header'),recorded=fields.filter(label=>hasData(fieldValue(record,label))).length;header.append(create('h2','',title),create('span','',`${recorded} of ${fields.length} recorded`));card.appendChild(header);
+    const grid=create('div','system-grid');fields.forEach(label=>{const item=create('article','system-field'),value=fieldValue(record,label),available=hasData(value);item.classList.add(available?'data-available':'data-missing');const state=create('span','field-state',available?'Available':'No data');item.append(create('label','',label),create('div',available?'':'empty',available?value:'No data'),state);grid.appendChild(item);});card.appendChild(grid);categories.appendChild(card);cards.push(card);
   });
   nav.append(priority,secondary);selectCategory(0);
   document.querySelector('#record-loading').hidden=true;document.querySelector('#record').hidden=false;
