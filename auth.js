@@ -22,12 +22,20 @@ window.assetAuthReady = async function assetAuthReady() {
     return new Promise(() => {});
   }
   const user = await response.json();
+  const displayName = String(
+    user.user_metadata?.display_name ||
+    user.user_metadata?.full_name ||
+    user.user_metadata?.username ||
+    user.email?.split('@')[0] ||
+    'Authorized user'
+  ).trim();
+  const userLabel = document.querySelector('#current-user');
+  if (userLabel) userLabel.textContent = displayName;
   document.documentElement.classList.add('authenticated');
-  return { token, user };
+  return { token, user, displayName };
 };
 
 window.assetLogout = function assetLogout() {
   sessionStorage.removeItem('asset_access_token');
   location.replace('login.html');
 };
-
