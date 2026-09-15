@@ -3,30 +3,30 @@
 .back-link { justify-self: center; color: #e8edf2; text-decoration: none; padding: 10px 14px; border: 1px solid var(--line); border-radius: 10px; background: rgba(255,255,255,.05); font-size: .84rem; }
 .classification { justify-self: end; color: #ffb4b0; border: 1px solid rgba(240,68,56,.28); background: rgba(240,68,56,.08); border-radius: 999px; padding: 7px 11px; font-size: .7rem; font-weight: 800; letter-spacing: .07em; }
 .record-actions { justify-self:end; display:flex; align-items:center; gap:8px; }
-.record-shell { width: min(1440px, calc(100% - 48px)); margin: 0 auto; padding: 42px 0 72px; }
+.record-shell { width: min(1540px, calc(100% - 36px)); margin: 0 auto; padding: 28px 0 52px; }
 .record-state { min-height: 55vh; display: flex; justify-content: center; align-items: center; gap: 12px; color: #aeb9c5; }
 .record-state[hidden] { display: none !important; }
 .record-state.error { color: #ffaaa4; }
-.record-hero { display: flex; justify-content: space-between; gap: 32px; align-items: flex-end; padding: 30px; border: 1px solid var(--line); border-radius: 20px; background: linear-gradient(135deg, rgba(255,255,255,.07), rgba(255,255,255,.025)); box-shadow: 0 24px 70px rgba(0,0,0,.22); }
+.record-hero { display: flex; justify-content: space-between; gap: 24px; align-items: flex-end; padding: 20px 24px; border: 1px solid var(--line); border-radius: 16px; background: linear-gradient(135deg, rgba(255,255,255,.07), rgba(255,255,255,.025)); box-shadow: 0 18px 50px rgba(0,0,0,.2); }
 .site-kicker { margin: 0 0 9px; color: #91a2b3; text-transform: uppercase; letter-spacing: .14em; font-size: .75rem; font-weight: 800; }
 .site-title-row { display: flex; align-items: center; gap: 14px; }
-.site-title-row h1 { margin: 0; font-size: clamp(2.2rem, 5vw, 4rem); letter-spacing: -.05em; }
+.site-title-row h1 { margin: 0; font-size: clamp(1.9rem, 4vw, 3rem); letter-spacing: -.045em; }
 .site-location { margin: 9px 0 0; color: #a7b3bf; }
 .map-link { display: inline-flex; padding: 11px 14px; border: 1px solid var(--line); border-radius: 10px; color: white; text-decoration: none; background: rgba(255,255,255,.055); font-size: .82rem; }
-.category-nav { position: sticky; top: 94px; z-index: 10; display: flex; gap: 8px; overflow-x: auto; margin: 22px 0; padding: 8px; border: 1px solid var(--line); border-radius: 14px; background: rgba(7,16,27,.9); backdrop-filter: blur(16px); }
-.category-nav a { white-space: nowrap; color: #aeb9c5; text-decoration: none; padding: 9px 12px; border-radius: 9px; font-size: .78rem; }
+.category-nav { position: sticky; top: 86px; z-index: 10; display: flex; gap: 5px; overflow-x: auto; margin: 14px 0; padding: 6px; border: 1px solid var(--line); border-radius: 12px; background: rgba(7,16,27,.9); backdrop-filter: blur(16px); }
+.category-nav a { white-space: nowrap; color: #aeb9c5; text-decoration: none; padding: 7px 10px; border-radius: 8px; font-size: .7rem; }
 .category-nav a:hover { color: #fff; background: rgba(255,255,255,.07); }
-.category-list { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 20px; }
-.system-card { scroll-margin-top: 170px; border: 1px solid #ded8e5; border-radius: 18px; overflow: hidden; background: #fff; box-shadow: 0 14px 38px rgba(0,0,0,.18); }
-.system-card header { display: flex; justify-content: space-between; align-items: center; padding: 18px 20px; border-bottom: 0; background: linear-gradient(110deg,#3b006b,#4f008c 58%,#6d00b3); color:#fff; }
-.system-card h2 { margin: 0; font-size: 1.03rem; letter-spacing:.01em; }
-.system-card header span { color: rgba(255,255,255,.72); font-size: .72rem; }
+.category-list { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 14px; }
+.system-card { scroll-margin-top: 150px; border: 1px solid #ded8e5; border-radius: 13px; overflow: hidden; background: #fff; box-shadow: 0 10px 28px rgba(0,0,0,.15); }
+.system-card header { display: flex; justify-content: space-between; align-items: center; padding: 12px 15px; border-bottom: 0; background: linear-gradient(110deg,#3b006b,#4f008c 58%,#6d00b3); color:#fff; }
+.system-card h2 { margin: 0; font-size: .88rem; letter-spacing:.01em; }
+.system-card header span { color: rgba(255,255,255,.72); font-size: .63rem; }
 .system-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); }
-.system-field { min-height: 76px; padding: 14px 18px; border-bottom: 1px solid #ebe7ef; background:#fff; }
+.system-field { min-height: 54px; padding: 9px 14px; border-bottom: 1px solid #ebe7ef; background:#fff; }
 .system-field:nth-child(odd) { border-right: 1px solid #ebe7ef; }
 .system-field:nth-child(4n+3),.system-field:nth-child(4n+4){background:#faf8fc;}
-.system-field label { display: block; color: #665c70; font-size: .71rem; font-weight:700; line-height: 1.35; margin-bottom: 7px; text-transform:uppercase; letter-spacing:.035em; }
-.system-field div { color: #23172c; font-size: .91rem; font-weight:650; line-height: 1.45; overflow-wrap: anywhere; }
+.system-field label { display: block; color: #6e6377; font-size: .62rem; font-weight:750; line-height: 1.2; margin-bottom: 4px; text-transform:uppercase; letter-spacing:.03em; }
+.system-field div { color: #23172c; font-size: .8rem; font-weight:650; line-height: 1.3; overflow-wrap: anywhere; }
 .system-field .empty { color: #9a91a1; font-weight:500; }
 @media (max-width: 900px) { .category-list { grid-template-columns: 1fr; } .record-topbar { grid-template-columns: 1fr auto auto; } }
-@media (max-width: 600px) { .record-shell { width: min(100% - 24px,1440px); padding-top: 18px; } .record-hero { padding: 22px; flex-direction: column; align-items: flex-start; } .system-grid { grid-template-columns: 1fr; } .system-field:nth-child(odd) { border-right: 0; } .category-nav { top: 78px; } }
+@media (max-width: 600px) { .record-shell { width: min(100% - 18px,1440px); padding-top: 12px; } .record-hero { padding: 17px; flex-direction: column; align-items: flex-start; } .system-grid { grid-template-columns: 1fr; } .system-field { min-height:48px; padding:8px 12px; } .system-field:nth-child(odd) { border-right: 0; } .category-nav { top: 78px; } }
