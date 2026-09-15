@@ -72,8 +72,7 @@ function renderMap() {
     mapTypeId: 'roadmap', mapTypeControl: true, mapTypeControlOptions: { position: google.maps.ControlPosition.RIGHT_TOP },
     zoomControl: true, zoomControlOptions: { position: google.maps.ControlPosition.RIGHT_CENTER },
     streetViewControl: true, streetViewControlOptions: { position: google.maps.ControlPosition.RIGHT_CENTER },
-    fullscreenControl: true, scaleControl: true, clickableIcons: false,
-    styles: [{ elementType: 'geometry', stylers: [{ color: '#17202a' }] }, { elementType: 'labels.text.stroke', stylers: [{ color: '#17202a' }] }, { elementType: 'labels.text.fill', stylers: [{ color: '#8d9aaa' }] }, { featureType: 'water', elementType: 'geometry', stylers: [{ color: '#07101b' }] }]
+    fullscreenControl: true, scaleControl: true, clickableIcons: false
   });
   map.fitBounds(kingdomBounds, 30);
   infoWindow = new google.maps.InfoWindow();
@@ -81,11 +80,11 @@ function renderMap() {
     fetch('https://raw.githubusercontent.com/johan/world.geo.json/master/countries/SAU.geo.json').then(response => response.json()),
     fetch('https://code.highcharts.com/mapdata/countries/sa/sa-all.geo.json').then(response => response.json())
   ]).then(([country, geojson]) => {
-    const hole = country.features[0].geometry.coordinates[0].map(([lng, lat]) => ({ lat, lng })).reverse();
-    new google.maps.Polygon({ map, paths: [[{lat:-85,lng:-180},{lat:-85,lng:180},{lat:85,lng:180},{lat:85,lng:-180}], hole], strokeOpacity: 0, fillColor: '#06101b', fillOpacity: .86, clickable: false, zIndex: 1 });
+    const borderPath = country.features[0].geometry.coordinates[0].map(([lng, lat]) => ({ lat, lng }));
+    new google.maps.Polyline({ map, path: borderPath, strokeColor: '#202a35', strokeOpacity: 1, strokeWeight: 3, clickable: false, zIndex: 3 });
     regionData = new google.maps.Data({ map }); regionData.addGeoJson(geojson);
-    regionData.setStyle(feature => { const region = PROVINCE_TO_REGION[feature.getProperty('hc-key')] || 'Other'; return { strokeColor: '#d3dce5', strokeWeight: 1.35, strokeOpacity: .82, fillColor: REGION_COLORS[region], fillOpacity: .32, zIndex: 2 }; });
-    regionData.addListener('mouseover', event => regionData.overrideStyle(event.feature, { fillOpacity: .55, strokeWeight: 2 }));
+    regionData.setStyle(feature => { const region = PROVINCE_TO_REGION[feature.getProperty('hc-key')] || 'Other'; return { strokeColor: REGION_COLORS[region], strokeWeight: 2, strokeOpacity: .95, fillColor: REGION_COLORS[region], fillOpacity: 0, zIndex: 2 }; });
+    regionData.addListener('mouseover', event => regionData.overrideStyle(event.feature, { fillOpacity: .12, strokeWeight: 3 }));
     regionData.addListener('mouseout', event => regionData.revertStyle(event.feature));
     regionData.addListener('click', event => focusRegion(PROVINCE_TO_REGION[event.feature.getProperty('hc-key')] || 'Other'));
     [['Central',{lat:24.55,lng:45.25}],['East',{lat:25.1,lng:50.45}],['West',{lat:24.6,lng:39.2}],['South',{lat:19.25,lng:43.5}]].forEach(([name, position]) => new google.maps.Marker({ map, position, clickable: false, zIndex: 4, icon: { path: google.maps.SymbolPath.CIRCLE, scale: 0 }, label: { text: name.toUpperCase(), color: '#ffffff', fontSize: '12px', fontWeight: '800' } }));
