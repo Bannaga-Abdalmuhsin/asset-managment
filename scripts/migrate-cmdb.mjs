@@ -6,8 +6,13 @@ const required = name => {
 
 const supabaseUrl = required('SUPABASE_URL').replace(/\/$/, '');
 const serviceKey = required('SUPABASE_SERVICE_ROLE_KEY');
-const csvUrl = process.env.CMDB_CSV_URL?.trim() ||
-  'https://docs.google.com/spreadsheets/d/1uWbVwsJ6mgUl9WxJz-zbxMaiCW-dG3DI_9gvKkEca18/export?format=csv&gid=2046046325';
+const configuredCsvUrl = process.env.CMDB_CSV_URL?.trim() ||
+  'https://docs.google.com/spreadsheets/d/1uWbVwsJ6mgUl9WxJz-zbxMaiCW-dG3DI_9gvKkEca18/edit?gid=2046046325';
+const sheetMatch = configuredCsvUrl.match(/docs\.google\.com\/spreadsheets\/d\/([^/]+)/i);
+const gidMatch = configuredCsvUrl.match(/[?#&]gid=(\d+)/i);
+const csvUrl = sheetMatch
+  ? `https://docs.google.com/spreadsheets/d/${sheetMatch[1]}/export?format=csv&gid=${gidMatch?.[1] || '0'}`
+  : configuredCsvUrl;
 
 function parseCSV(text) {
   const rows = []; let row = [], value = '', quoted = false;
@@ -39,9 +44,18 @@ const pick = (record, ...names) => {
 const csvResponse = await fetch(csvUrl, { redirect: 'follow' });
 if (!csvResponse.ok) throw new Error(`CMDB download failed (${csvResponse.status})`);
 const rows = parseCSV(await csvResponse.text());
-const headerIndex = rows.findIndex(row => row.some(cell => clean(cell).toUpperCase() === 'COW ID'));
-if (headerIndex < 0) throw new Error('CMDB header row containing COW ID was not found');
+const headerIndex = rows.findIndex(row => {
+  const cells = row.map(cell => clean(cell).toUpperCase());
+  return cells.includes('COW ID') || (cells.includes('SITE LABEL') && cells.includes('REGION'));
+});
+if (headerIndex < 0) throw new Error('CMDB header row was not found');
 const headers = rows[headerIndex].map(clean);
+if (!headers.some(header => header.toUpperCase() === 'COW ID')) {
+  const sampleRows = rows.slice(headerIndex + 1, headerIndex + 25);
+  const inferredIdIndex = headers.findIndex((_, index) => sampleRows.some(row => /^C(?:OW|WH|WN|WA|WE)[A-Z0-9_-]*$/i.test(clean(row[index]))));
+  if (inferredIdIndex < 0) throw new Error('CMDB site ID column could not be identified');
+  headers[inferredIdIndex] = 'COW ID';
+}
 const records = rows.slice(headerIndex + 1).map(row => {
   const details = {};
   headers.forEach((header, index) => { if (header) details[header] = clean(row[index]); });
@@ -75,4 +89,3 @@ for (let offset = 0; offset < records.length; offset += 100) {
 }
 
 console.log(`Migrated ${records.length} CMDB assets to Supabase.`);
-
