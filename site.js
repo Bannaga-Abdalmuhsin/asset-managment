@@ -3,7 +3,7 @@ const SYSTEMS = [
   ['Microwave & Transmission',['MW Dish','MW Frequency','MW Link Type','Remarks']],
   ['Tower, Civil & Access',['Shelter/Outdoor','Indoor Light Status','Outdoor Light Status','Tower Light Status','Pad Locks Status','Rented Land','Land Owner','Rental Cost','VEHICAL MAKE','PLATE #','Tower Height','TOWER TYPE','Tower System','GPS Status','FE ID']],
   ['Overview & Location',['COW ID','Site Label','EBU/Royal','Region','District','City','Remote & Metropolitan','Location','Latitude','Longitude','Site Status','Last Deploying Date','Under Replacement','1st Deploying Date','COW OLD/NEW','Vendor','V-Sat']],
-  ['Power & Generator',['SEC connection','MDB Type & Status','PG Status','Genset QTY','ACES TG','Genset Repair Status','Genset Make','Engine Make','Alternator Make','Capacity','ATS Status','Cooling System Status','Fuel Tank capacity']],
+  ['Power & Generator',['SEC connection','MDB Type & Status','PG Status','Genset QTY','ACES TG','Genset Repair Status','Genset Make','Engine Make','Alternator Make','ATS Status','Cooling System Status','Fuel Tank capacity']],
   ['HVAC',['AC Make','AC Capacity','AC Type Split/Package','Qty','AC #1 Status','AC #2 Status','HVAC BRAND','PLC Make','HVAC Status']],
   ['DC Power & BBU',['Installed BBU','BBU Volt & Capacity (AH)','No of Cells','No of Strings','BBU Status','BBU Backup Time','BBU Remarks','DC Power Brand','DC Power Capacity','DC Cabinet','Installed Rectifiers','Required Rectifiers']],
   ['Fire, Safety & Security',['Fire Panel Brand','Fire Panel Status','Cylinder Status Filled Or Empty Or Expired','Cylinder Expiry Date','Security System Brand','Security System Status','Shelter Tube Rods','Security Light Status']]
@@ -11,7 +11,7 @@ const SYSTEMS = [
 const normalize = value => String(value ?? '').replace(/\s+/g,' ').trim();
 function parseCSV(text) { const rows=[]; let row=[],value='',quoted=false; for(let i=0;i<text.length;i++){const c=text[i]; if(quoted){if(c==='"'&&text[i+1]==='"'){value+='"';i++;}else if(c==='"')quoted=false;else value+=c;}else if(c==='"')quoted=true;else if(c===','){row.push(value);value='';}else if(c==='\n'){row.push(value.replace(/\r$/,''));rows.push(row);row=[];value='';}else value+=c;} if(value||row.length){row.push(value);rows.push(row);} return rows; }
 function create(tag,className,text){const el=document.createElement(tag);if(className)el.className=className;if(text!==undefined)el.textContent=text;return el;}
-function fieldValue(record,requested){if(record[requested]!==undefined)return normalize(record[requested]);const key=Object.keys(record).find(name=>normalize(name).toLowerCase()===requested.toLowerCase());return key?normalize(record[key]):'';}
+function fieldValue(record,requested){if(record[requested]!==undefined)return normalize(record[requested]);if(requested==='AC Capacity'&&record.Capacity!==undefined)return normalize(record.Capacity);const key=Object.keys(record).find(name=>normalize(name).toLowerCase()===requested.toLowerCase());return key?normalize(record[key]):'';}
 function hasData(value){return value!==''&&!['n/a','na','none','null','undefined','-','--','not recorded','unknown'].includes(value.toLowerCase());}
 function renderRecord(record){
   const id=fieldValue(record,'COW ID'),status=fieldValue(record,'Site Status')||'UNKNOWN';
