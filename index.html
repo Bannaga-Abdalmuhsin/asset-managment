@@ -8,7 +8,7 @@
   <meta name="referrer" content="no-referrer" />
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://maps.googleapis.com https://maps.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: blob: https://maps.gstatic.com https://maps.googleapis.com https://*.google.com https://*.ggpht.com; connect-src 'self' https://*.supabase.co https://maps.googleapis.com https://maps.gstatic.com https://raw.githubusercontent.com; font-src 'self' https://fonts.gstatic.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-src 'none'; upgrade-insecure-requests" />
   <title>stc COW Asset Management</title>
-  <link rel="stylesheet" href="styles.css?v=11" />
+  <link rel="stylesheet" href="styles.css?v=12" />
 </head>
 <body>
   <main class="app-shell">
@@ -25,24 +25,12 @@
         <div id="suggestions" class="suggestions" hidden></div>
       </div>
 
-      <div class="live-state account-state">
-        <span class="account-dot"></span>
-        <button id="account-trigger" class="account-trigger" type="button" aria-haspopup="true" aria-expanded="false">
-          <small>Logged in as</small><b id="current-user">Loading…</b><i>⌄</i>
-        </button>
-        <section id="account-menu" class="account-menu" aria-label="User account" hidden>
-          <header><strong>Account</strong><button id="account-close" type="button" aria-label="Close account menu">×</button></header>
-          <dl><div><dt>Email</dt><dd id="account-email">—</dd></div><div><dt>Last sign-in</dt><dd id="account-last-sign-in">—</dd></div></dl>
-          <form id="username-form">
-            <label>Username<input name="username" type="text" minlength="3" maxlength="32" pattern="[A-Za-z0-9._-]+" autocomplete="username" required /></label>
-            <button type="submit">Change username</button>
-          </form>
-          <form id="password-form">
-            <label>New password<input name="password" type="password" minlength="8" autocomplete="new-password" required /></label>
-            <button type="submit">Change password</button>
-          </form>
-          <p id="account-message" class="account-message" hidden></p>
-          <button class="account-logout" type="button" onclick="assetLogout()">Logout</button>
+      <div class="account-state">
+        <button id="account-trigger" class="avatar-button" type="button" aria-label="Open user menu" aria-haspopup="true" aria-expanded="false"><img class="user-avatar" alt="" hidden /><span class="user-initials">U</span></button>
+        <section id="account-menu" class="user-menu" aria-label="User menu" hidden>
+          <div class="user-menu-head"><strong id="current-user">Loading…</strong><small id="account-email">—</small></div>
+          <a href="account.html">Settings</a>
+          <button type="button" data-logout>Logout</button>
         </section>
       </div>
     </header>
@@ -64,7 +52,7 @@
   <div id="toast" class="toast" role="status"></div>
 
   <script src="config.js?v=4"></script>
-  <script src="auth.js?v=3"></script>
+  <script src="auth.js?v=4"></script>
   <script src="app.js?v=18"></script>
 </body>
 </html>
