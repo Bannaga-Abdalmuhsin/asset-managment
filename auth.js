@@ -21,7 +21,10 @@ async function signedAvatarUrl(path, token) {
   const response = await fetch(`${url}/storage/v1/object/sign/avatars/${path}`, { method: 'POST', headers: { apikey: key, Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ expiresIn: 3600 }) });
   if (!response.ok) return '';
   const result = await response.json();
-  return result.signedURL ? `${url}/storage/v1${result.signedURL}` : '';
+  if (!result.signedURL) return '';
+  if (/^https:\/\//i.test(result.signedURL)) return result.signedURL;
+  if (result.signedURL.startsWith('/storage/v1/')) return `${url}${result.signedURL}`;
+  return `${url}/storage/v1${result.signedURL.startsWith('/') ? '' : '/'}${result.signedURL}`;
 }
 
 async function renderUser(user, token) {
@@ -36,9 +39,19 @@ async function renderUser(user, token) {
   document.querySelectorAll('.user-initials').forEach(el => { el.textContent = initials; });
   const avatarUrl = await signedAvatarUrl(user.user_metadata?.avatar_path, token);
   if (avatarUrl) {
-    document.querySelectorAll('.user-avatar').forEach(img => { img.src = avatarUrl; img.hidden = false; img.nextElementSibling.hidden = true; });
+    document.querySelectorAll('.user-avatar').forEach(img => {
+      img.onerror = () => { img.hidden = true; if (img.nextElementSibling) img.nextElementSibling.hidden = false; };
+      img.src = avatarUrl;
+      img.hidden = false;
+      if (img.nextElementSibling) img.nextElementSibling.hidden = true;
+    });
     const preview = document.querySelector('#profile-avatar-preview');
-    if (preview) { preview.src = avatarUrl; preview.hidden = false; if (preview.nextElementSibling) preview.nextElementSibling.hidden = true; }
+    if (preview) {
+      preview.onerror = () => { preview.hidden = true; if (preview.nextElementSibling) preview.nextElementSibling.hidden = false; };
+      preview.src = avatarUrl;
+      preview.hidden = false;
+      if (preview.nextElementSibling) preview.nextElementSibling.hidden = true;
+    }
   }
 }
 
