@@ -1,0 +1,41 @@
+name: Deploy GitHub Pages
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Generate public runtime configuration
+        env:
+          GOOGLE_MAPS_API_KEY: ${{ secrets.GOOGLE_MAPS_API_KEY }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+        run: |
+          test -n "$GOOGLE_MAPS_API_KEY"
+          test -n "$SUPABASE_URL"
+          test -n "$SUPABASE_ANON_KEY"
+          sed -e "s|__GOOGLE_MAPS_API_KEY__|$GOOGLE_MAPS_API_KEY|g" \
+              -e "s|__SUPABASE_URL__|$SUPABASE_URL|g" \
+              -e "s|__SUPABASE_ANON_KEY__|$SUPABASE_ANON_KEY|g" \
+              config.template.js > config.js
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+      - id: deployment
+        uses: actions/deploy-pages@v4
