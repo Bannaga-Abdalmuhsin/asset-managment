@@ -4,6 +4,7 @@
 .classification { justify-self: end; color: #ffb4b0; border: 1px solid rgba(240,68,56,.28); background: rgba(240,68,56,.08); border-radius: 999px; padding: 7px 11px; font-size: .7rem; font-weight: 800; letter-spacing: .07em; }
 .record-shell { width: min(1440px, calc(100% - 48px)); margin: 0 auto; padding: 42px 0 72px; }
 .record-state { min-height: 55vh; display: flex; justify-content: center; align-items: center; gap: 12px; color: #aeb9c5; }
+.record-state[hidden] { display: none !important; }
 .record-state.error { color: #ffaaa4; }
 .record-hero { display: flex; justify-content: space-between; gap: 32px; align-items: flex-end; padding: 30px; border: 1px solid var(--line); border-radius: 20px; background: linear-gradient(135deg, rgba(255,255,255,.07), rgba(255,255,255,.025)); box-shadow: 0 24px 70px rgba(0,0,0,.22); }
 .site-kicker { margin: 0 0 9px; color: #91a2b3; text-transform: uppercase; letter-spacing: .14em; font-size: .75rem; font-weight: 800; }
