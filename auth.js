@@ -27,7 +27,7 @@ async function signedAvatarUrl(path, token) {
   return `${url}/storage/v1${result.signedURL.startsWith('/') ? '' : '/'}${result.signedURL}`;
 }
 
-async function renderUser(user, token) {
+function renderUser(user, token) {
   const name = accountDisplayName(user);
   document.querySelectorAll('#current-user').forEach(el => { el.textContent = name; });
   document.querySelectorAll('#account-email').forEach(el => { el.textContent = user.email || 'Not available'; });
@@ -37,6 +37,7 @@ async function renderUser(user, token) {
   if (lastSignIn) lastSignIn.textContent = user.last_sign_in_at ? new Intl.DateTimeFormat(undefined, { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(user.last_sign_in_at)) : 'Not available';
   const initials = name.split(/\s+/).map(part => part[0]).join('').slice(0, 2).toUpperCase() || 'U';
   document.querySelectorAll('.user-initials').forEach(el => { el.textContent = initials; });
+  const loadAvatar = async () => {
   const avatarUrl = await signedAvatarUrl(user.user_metadata?.avatar_path, token);
   if (avatarUrl) {
     document.querySelectorAll('.user-avatar').forEach(img => {
@@ -52,6 +53,11 @@ async function renderUser(user, token) {
       preview.hidden = false;
       if (preview.nextElementSibling) preview.nextElementSibling.hidden = true;
     }
+  }
+  };
+  if (user.user_metadata?.avatar_path) {
+    if ('requestIdleCallback' in window) requestIdleCallback(loadAvatar, { timeout: 900 });
+    else setTimeout(loadAvatar, 0);
   }
 }
 
@@ -103,6 +109,7 @@ function initializeSettings(user, token) {
 window.assetLogout = async function assetLogout() {
   const token = sessionStorage.getItem('asset_access_token'), { url, key } = authConfig();
   sessionStorage.removeItem('asset_access_token');
+  sessionStorage.removeItem('asset_map_cache_v1');
   try { if (token && url && key) await fetch(`${url}/auth/v1/logout`, { method: 'POST', headers: { apikey: key, Authorization: `Bearer ${token}` } }); }
   finally { location.replace('login.html'); }
 };
@@ -111,9 +118,9 @@ window.assetAuthReady = async function assetAuthReady() {
   const { url, key } = authConfig(), token = sessionStorage.getItem('asset_access_token');
   if (!url || !key || !token) { location.replace(`login.html?next=${encodeURIComponent(location.pathname + location.search)}`); return new Promise(() => {}); }
   const response = await fetch(`${url}/auth/v1/user`, { headers: { apikey: key, Authorization: `Bearer ${token}` }, cache: 'no-store' });
-  if (!response.ok) { sessionStorage.removeItem('asset_access_token'); location.replace(`login.html?next=${encodeURIComponent(location.pathname + location.search)}`); return new Promise(() => {}); }
+  if (!response.ok) { sessionStorage.removeItem('asset_access_token'); sessionStorage.removeItem('asset_map_cache_v1'); location.replace(`login.html?next=${encodeURIComponent(location.pathname + location.search)}`); return new Promise(() => {}); }
   const user = await response.json();
-  await renderUser(user, token); initializeUserMenu(); initializeSettings(user, token);
+  renderUser(user, token); initializeUserMenu(); initializeSettings(user, token);
   document.querySelectorAll('[data-logout]').forEach(button => button.addEventListener('click', window.assetLogout));
   document.documentElement.classList.add('authenticated');
   return { token, user, displayName: accountDisplayName(user) };
