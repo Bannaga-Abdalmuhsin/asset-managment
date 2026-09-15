@@ -1,4 +1,7 @@
-const MAP_API = './api/assets/map';
+const supabaseConfig = () => ({
+  url: normalize(window.ASSET_APP_CONFIG?.supabaseUrl).replace(/\/$/, ''),
+  key: normalize(window.ASSET_APP_CONFIG?.supabaseAnonKey)
+});
 
 const PROVINCE_TO_REGION = {
   'SA-04': 'East', 'SA-08': 'East',
@@ -30,12 +33,17 @@ const regionName = region => {
 };
 
 async function loadAssets() {
-  const response = await fetch(MAP_API, { cache: 'no-store', credentials: 'include', headers: { Accept: 'application/json' } });
+  const { url, key } = supabaseConfig();
+  if (!url || !key) throw new Error('Supabase configuration unavailable');
+  const response = await fetch(`${url}/rest/v1/assets?select=id,lat,lon,status,region,district,city&order=id`, {
+    cache: 'no-store', credentials: 'omit', referrerPolicy: 'no-referrer',
+    headers: { Accept: 'application/json', apikey: key, Authorization: `Bearer ${key}` }
+  });
   if (!response.ok) throw new Error('Secure CMDB API unavailable');
   const payload = await response.json();
   const records = Array.isArray(payload) ? payload : payload.assets;
   if (!Array.isArray(records)) throw new Error('Invalid CMDB API response');
-  assets = records.map(asset => ({ ...asset, id: normalize(asset.id), region: regionName(asset.region), lat: Number(asset.lat), lon: Number(asset.lon), status: normalize(asset.status) })).filter(asset => asset.id && Number.isFinite(asset.lat) && Number.isFinite(asset.lon));
+  assets = records.map(asset => ({ ...asset, District: asset.district, City: asset.city, id: normalize(asset.id), region: regionName(asset.region), lat: Number(asset.lat), lon: Number(asset.lon), status: normalize(asset.status) })).filter(asset => asset.id && Number.isFinite(asset.lat) && Number.isFinite(asset.lon));
   applyAssetData(`${assets.length} assets · Live CMDB`);
 }
 
