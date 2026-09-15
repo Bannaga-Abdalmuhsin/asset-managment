@@ -1,6 +1,6 @@
 const SYSTEMS = [
   ['Overview & Location',['COW ID','Site Label','EBU/Royal','Region','District','City','Remote & Metropolitan','Location','Latitude','Longitude','Site Status','Last Deploying Date','Under Replacement','1st Deploying Date','COW OLD/NEW','Vendor','V-Sat']],
-  ['Radio & Technology',['2G Availability','2G Configuration','3G Availability','3G Configuration','LTE Availability','LTE Configuration','5G Availability','5G Configuration','2G/3G/LTE/5G','Multi Beam COWs','Configuration Level']],
+  ['Radio & Technology',['2G Availability','2G Configuration','LTE Availability','LTE Configuration','5G Availability','5G Configuration','2G/3G/LTE/5G','Multi Beam COWs','Configuration Level']],
   ['Power & Generator',['SEC connection','MDB Type & Status','PG Status','Genset QTY','ACES TG','Genset Repair Status','Genset Make','Engine Make','Alternator Make','Capacity','ATS Status','Cooling System Status','Fuel Tank capacity']],
   ['HVAC',['AC Make','AC Capacity','AC Type Split/Package','Qty','AC #1 Status','AC #2 Status','HVAC BRAND','PLC Make','HVAC Status']],
   ['DC Power & BBU',['Installed BBU','BBU Volt & Capacity (AH)','No of Cells','No of Strings','BBU Status','BBU Backup Time','BBU Remarks','DC Power Brand','DC Power Capacity','DC Cabinet','Installed Rectifiers','Required Rectifiers']],
