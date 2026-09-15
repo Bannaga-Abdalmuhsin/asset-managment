@@ -9,6 +9,8 @@ let infoWindow;
 let siteMarkers = [];
 let activeStatusFilter = 'all';
 const markerById = new Map();
+const ASSET_CACHE_KEY = 'asset_map_cache_v1';
+const ASSET_CACHE_TTL = 2 * 60 * 1000;
 
 const $ = (selector) => document.querySelector(selector);
 const normalize = value => String(value ?? '').replace(/\s+/g, ' ').trim();
@@ -32,6 +34,13 @@ window.gm_authFailure = () => {
 };
 
 async function loadAssets() {
+  try {
+    const cached = JSON.parse(sessionStorage.getItem(ASSET_CACHE_KEY) || 'null');
+    if (cached && Date.now() - cached.savedAt < ASSET_CACHE_TTL && Array.isArray(cached.assets)) {
+      assets = cached.assets;
+      return assets;
+    }
+  } catch (_) { sessionStorage.removeItem(ASSET_CACHE_KEY); }
   const { url, key } = supabaseConfig();
   if (!url || !key) throw new Error('Supabase configuration unavailable');
   const accessToken = sessionStorage.getItem('asset_access_token') || key;
@@ -44,7 +53,8 @@ async function loadAssets() {
   const records = Array.isArray(payload) ? payload : payload.assets;
   if (!Array.isArray(records)) throw new Error('Invalid CMDB API response');
   assets = records.map(asset => ({ ...asset, District: asset.district, City: asset.city, id: normalize(asset.id), region: regionName(asset.region), lat: Number(asset.lat), lon: Number(asset.lon), status: normalize(asset.status) })).filter(asset => asset.id && Number.isFinite(asset.lat) && Number.isFinite(asset.lon));
-  applyAssetData();
+  try { sessionStorage.setItem(ASSET_CACHE_KEY, JSON.stringify({ savedAt: Date.now(), assets })); } catch (_) {}
+  return assets;
 }
 
 function applyAssetData() {
@@ -58,7 +68,7 @@ function loadGoogleMaps() {
   return new Promise((resolve, reject) => {
     window.__assetMapReady = resolve;
     const script = document.createElement('script');
-    script.src = `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(key)}&callback=__assetMapReady&v=weekly`;
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(key)}&callback=__assetMapReady&v=quarterly&loading=async`;
     script.async = true; script.defer = true;
     script.onerror = () => reject(new Error('Map is temporarily unavailable. Please try again later.'));
     document.head.appendChild(script);
@@ -84,10 +94,15 @@ function renderMap() {
 
 function drawMarkers() {
   if (!map) return;
-  siteMarkers.forEach(marker => marker.setMap(null)); siteMarkers = []; markerById.clear();
-  assets.filter(asset => activeStatusFilter === 'all' || (activeStatusFilter === 'on-air' ? isOnAir(asset.status) : !isOnAir(asset.status))).forEach(asset => {
+  if (siteMarkers.length) {
+    siteMarkers.forEach(marker => marker.setVisible(activeStatusFilter === 'all' || (activeStatusFilter === 'on-air' ? isOnAir(marker.__asset.status) : !isOnAir(marker.__asset.status))));
+    return;
+  }
+  markerById.clear();
+  assets.forEach(asset => {
     const online = isOnAir(asset.status);
-    const marker = new google.maps.Marker({ map, position: { lat: asset.lat, lng: asset.lon }, title: asset.id, zIndex: 6, icon: { path: google.maps.SymbolPath.CIRCLE, scale: online ? 5 : 5.5, fillColor: online ? '#32d583' : '#f04438', fillOpacity: .96, strokeColor: '#f4f7fb', strokeWeight: 1 } });
+    const marker = new google.maps.Marker({ map, position: { lat: asset.lat, lng: asset.lon }, title: asset.id, zIndex: 6, optimized:true, icon: { path: google.maps.SymbolPath.CIRCLE, scale: online ? 5 : 5.5, fillColor: online ? '#32d583' : '#f04438', fillOpacity: .96, strokeColor: '#f4f7fb', strokeWeight: 1 } });
+    marker.__asset=asset;
     marker.addListener('click', () => { infoWindow.setContent(`<div class="gm-asset"><b>${escapeHTML(asset.id)}</b><span>${escapeHTML(asset.status || 'Unknown')} · ${escapeHTML(asset.region)}</span><a href="site.html?site=${encodeURIComponent(asset.id)}">View asset record →</a></div>`); infoWindow.open({ map, anchor: marker }); });
     markerById.set(asset.id, marker);
     siteMarkers.push(marker);
@@ -154,7 +169,7 @@ document.querySelectorAll('[data-status-filter]').forEach(button => button.addEv
   document.querySelectorAll('[data-status-filter]').forEach(item => item.classList.toggle('active', item === button));
   drawMarkers();
 }));
-window.assetAuthReady().then(() => loadGoogleMaps()).then(() => { renderMap(); return loadAssets(); }).catch(error => {
+window.assetAuthReady().then(() => { const assetRequest=loadAssets(); return loadGoogleMaps().then(() => { renderMap(); return assetRequest; }); }).then(applyAssetData).catch(error => {
   $('#loading').hidden = false;
   $('#loading').classList.add('error');
   $('#loading').textContent = error.message.includes('Map') || error.message.includes('key')
