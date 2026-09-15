@@ -9,6 +9,7 @@ This GitHub Pages build is an interface prototype. It is public static hosting a
 - Session-only map cache rather than persistent local storage
 - Validated site identifiers and DOM text rendering for CMDB values
 - Pinned third-party library versions and HTTPS-only resources
+- Google Maps browser key restricted by HTTP referrer and API scope; never use a server/service-account credential in `config.js`
 - External links isolated with `noopener`, `noreferrer`, and a no-referrer policy
 
 ## Mandatory production architecture
