@@ -28,5 +28,5 @@
 .system-field label { display: block; color: #665c70; font-size: .71rem; font-weight:700; line-height: 1.35; margin-bottom: 7px; text-transform:uppercase; letter-spacing:.035em; }
 .system-field div { color: #23172c; font-size: .91rem; font-weight:650; line-height: 1.45; overflow-wrap: anywhere; }
 .system-field .empty { color: #9a91a1; font-weight:500; }
-@media (max-width: 900px) { .category-list { grid-template-columns: 1fr; } .record-actions .account-state { display:none; } .record-topbar { grid-template-columns: 1fr auto auto; } }
+@media (max-width: 900px) { .category-list { grid-template-columns: 1fr; } .record-topbar { grid-template-columns: 1fr auto auto; } }
 @media (max-width: 600px) { .record-shell { width: min(100% - 24px,1440px); padding-top: 18px; } .record-hero { padding: 22px; flex-direction: column; align-items: flex-start; } .system-grid { grid-template-columns: 1fr; } .system-field:nth-child(odd) { border-right: 0; } .category-nav { top: 78px; } }
