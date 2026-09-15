@@ -35,11 +35,10 @@ async function loadAssets() {
   const records = Array.isArray(payload) ? payload : payload.assets;
   if (!Array.isArray(records)) throw new Error('Invalid CMDB API response');
   assets = records.map(asset => ({ ...asset, District: asset.district, City: asset.city, id: normalize(asset.id), region: regionName(asset.region), lat: Number(asset.lat), lon: Number(asset.lon), status: normalize(asset.status) })).filter(asset => asset.id && Number.isFinite(asset.lat) && Number.isFinite(asset.lon));
-  applyAssetData(`${assets.length} assets`);
+  applyAssetData();
 }
 
-function applyAssetData(stateText) {
-  $('#data-state').textContent = stateText;
+function applyAssetData() {
   $('#loading').hidden = true;
   drawMarkers();
 }
@@ -148,6 +147,5 @@ document.querySelectorAll('[data-status-filter]').forEach(button => button.addEv
 }));
 window.assetAuthReady().then(() => loadGoogleMaps()).then(() => { renderMap(); return loadAssets(); }).catch(error => {
   $('#loading').textContent = error.message.includes('key') ? 'Google Maps configuration required' : 'Unable to load asset data';
-  $('#data-state').textContent = error.message.includes('key') ? 'Map unavailable' : 'Data unavailable';
   console.error(error);
 });
