@@ -1,12 +1,12 @@
 const SYSTEMS = [
-  ['Overview & Location',['COW ID','Site Label','EBU/Royal','Region','District','City','Remote & Metropolitan','Location','Latitude','Longitude','Site Status','Last Deploying Date','Under Replacement','1st Deploying Date','COW OLD/NEW','Vendor','V-Sat']],
   ['Radio & Technology',['2G Availability','2G Configuration','LTE Availability','LTE Configuration','5G Availability','5G Configuration','2G/3G/LTE/5G','Multi Beam COWs','Configuration Level']],
+  ['Overview & Location',['COW ID','Site Label','EBU/Royal','Region','District','City','Remote & Metropolitan','Location','Latitude','Longitude','Site Status','Last Deploying Date','Under Replacement','1st Deploying Date','COW OLD/NEW','Vendor','V-Sat']],
+  ['Microwave & Transmission',['MW Dish','MW Frequency','MW Link Type','Remarks']],
+  ['Tower, Civil & Access',['Shelter/Outdoor','Indoor Light Status','Outdoor Light Status','Tower Light Status','Pad Locks Status','Rented Land','Land Owner','Rental Cost','VEHICAL MAKE','PLATE #','Tower Height','TOWER TYPE','Tower System','GPS Status','FE ID']],
   ['Power & Generator',['SEC connection','MDB Type & Status','PG Status','Genset QTY','ACES TG','Genset Repair Status','Genset Make','Engine Make','Alternator Make','Capacity','ATS Status','Cooling System Status','Fuel Tank capacity']],
   ['HVAC',['AC Make','AC Capacity','AC Type Split/Package','Qty','AC #1 Status','AC #2 Status','HVAC BRAND','PLC Make','HVAC Status']],
   ['DC Power & BBU',['Installed BBU','BBU Volt & Capacity (AH)','No of Cells','No of Strings','BBU Status','BBU Backup Time','BBU Remarks','DC Power Brand','DC Power Capacity','DC Cabinet','Installed Rectifiers','Required Rectifiers']],
-  ['Fire, Safety & Security',['Fire Panel Brand','Fire Panel Status','Cylinder Status Filled Or Empty Or Expired','Cylinder Expiry Date','Security System Brand','Security System Status','Shelter Tube Rods','Security Light Status']],
-  ['Tower, Civil & Access',['Shelter/Outdoor','Indoor Light Status','Outdoor Light Status','Tower Light Status','Pad Locks Status','Rented Land','Land Owner','Rental Cost','VEHICAL MAKE','PLATE #','Tower Height','TOWER TYPE','Tower System','GPS Status','FE ID']],
-  ['Microwave & Transmission',['MW Dish','MW Frequency','MW Link Type','Remarks']]
+  ['Fire, Safety & Security',['Fire Panel Brand','Fire Panel Status','Cylinder Status Filled Or Empty Or Expired','Cylinder Expiry Date','Security System Brand','Security System Status','Shelter Tube Rods','Security Light Status']]
 ];
 const normalize = value => String(value ?? '').replace(/\s+/g,' ').trim();
 function parseCSV(text) { const rows=[]; let row=[],value='',quoted=false; for(let i=0;i<text.length;i++){const c=text[i]; if(quoted){if(c==='"'&&text[i+1]==='"'){value+='"';i++;}else if(c==='"')quoted=false;else value+=c;}else if(c==='"')quoted=true;else if(c===','){row.push(value);value='';}else if(c==='\n'){row.push(value.replace(/\r$/,''));rows.push(row);row=[];value='';}else value+=c;} if(value||row.length){row.push(value);rows.push(row);} return rows; }
