@@ -8,9 +8,9 @@ Enable **Maps JavaScript API** in Google Cloud, create a browser key, and restri
 
 The public GitHub Pages deployment is a prototype only. Review [SECURITY.md](SECURITY.md) before any STC system integration; production requires private hosting, STC SSO/RBAC, and a secured CMDB API rather than browser-direct spreadsheet access.
 
-## Secure API contract
+## Prototype CMDB connection
 
-The frontend uses same-origin authenticated endpoints: `GET /api/assets/map` for the least-privilege map projection and `GET /api/assets/{siteId}` for an authorized full record. The production gateway is responsible for STC SSO, RBAC, audit logging, rate limits, and transforming the CMDB source. No CMDB address or credential is published in browser code.
+This prototype reads the current Google Sheet directly. The map uses a lightweight column query for faster loading; the full CMDB row is downloaded only when opening a site record. This direct connection must be replaced by an authenticated CMDB API gateway before production or STC integration.
 
 ## GitHub Pages
 
