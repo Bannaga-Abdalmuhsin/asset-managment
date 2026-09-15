@@ -2,6 +2,7 @@
 .record-topbar { position: sticky; top: 0; z-index: 20; }
 .back-link { justify-self: center; color: #e8edf2; text-decoration: none; padding: 10px 14px; border: 1px solid var(--line); border-radius: 10px; background: rgba(255,255,255,.05); font-size: .84rem; }
 .classification { justify-self: end; color: #ffb4b0; border: 1px solid rgba(240,68,56,.28); background: rgba(240,68,56,.08); border-radius: 999px; padding: 7px 11px; font-size: .7rem; font-weight: 800; letter-spacing: .07em; }
+.record-actions { justify-self:end; display:flex; align-items:center; gap:8px; }
 .record-shell { width: min(1440px, calc(100% - 48px)); margin: 0 auto; padding: 42px 0 72px; }
 .record-state { min-height: 55vh; display: flex; justify-content: center; align-items: center; gap: 12px; color: #aeb9c5; }
 .record-state[hidden] { display: none !important; }
@@ -27,5 +28,5 @@
 .system-field label { display: block; color: #665c70; font-size: .71rem; font-weight:700; line-height: 1.35; margin-bottom: 7px; text-transform:uppercase; letter-spacing:.035em; }
 .system-field div { color: #23172c; font-size: .91rem; font-weight:650; line-height: 1.45; overflow-wrap: anywhere; }
 .system-field .empty { color: #9a91a1; font-weight:500; }
-@media (max-width: 900px) { .category-list { grid-template-columns: 1fr; } .classification { display:none; } .record-topbar { grid-template-columns: 1fr auto; } }
+@media (max-width: 900px) { .category-list { grid-template-columns: 1fr; } .record-actions .account-state { display:none; } .record-topbar { grid-template-columns: 1fr auto auto; } }
 @media (max-width: 600px) { .record-shell { width: min(100% - 24px,1440px); padding-top: 18px; } .record-hero { padding: 22px; flex-direction: column; align-items: flex-start; } .system-grid { grid-template-columns: 1fr; } .system-field:nth-child(odd) { border-right: 0; } .category-nav { top: 78px; } }
