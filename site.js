@@ -9,6 +9,7 @@ const SYSTEMS = [
   ['Microwave & Transmission',['MW Dish','MW Frequency','MW Link Type','Remarks']]
 ];
 const normalize = value => String(value ?? '').replace(/\s+/g,' ').trim();
+function parseCSV(text) { const rows=[]; let row=[],value='',quoted=false; for(let i=0;i<text.length;i++){const c=text[i]; if(quoted){if(c==='"'&&text[i+1]==='"'){value+='"';i++;}else if(c==='"')quoted=false;else value+=c;}else if(c==='"')quoted=true;else if(c===','){row.push(value);value='';}else if(c==='\n'){row.push(value.replace(/\r$/,''));rows.push(row);row=[];value='';}else value+=c;} if(value||row.length){row.push(value);rows.push(row);} return rows; }
 function create(tag,className,text){const el=document.createElement(tag);if(className)el.className=className;if(text!==undefined)el.textContent=text;return el;}
 function fieldValue(record,requested){if(record[requested]!==undefined)return normalize(record[requested]);const key=Object.keys(record).find(name=>normalize(name).toLowerCase()===requested.toLowerCase());return key?normalize(record[key]):'';}
 function renderRecord(record){
@@ -26,7 +27,8 @@ function renderRecord(record){
 async function loadRecord(){
   const siteId=normalize(new URLSearchParams(location.search).get('site')).toUpperCase();
   if(!/^[A-Z0-9_-]{2,24}$/.test(siteId))throw new Error('A valid site ID is required. Return to the national map and select a site.');
-  const response=await fetch(`./api/assets/${encodeURIComponent(siteId)}`,{cache:'no-store',credentials:'include',headers:{Accept:'application/json'}});if(response.status===404)throw new Error(`Site ${siteId} was not found in the CMDB.`);if(!response.ok)throw new Error('The secure CMDB API is unavailable. Sign in through the STC portal and try again.');
-  const record=await response.json();renderRecord(record);
+  const url=normalize(window.ASSET_APP_CONFIG?.supabaseUrl).replace(/\/$/,''),key=normalize(window.ASSET_APP_CONFIG?.supabaseAnonKey);if(!url||!key)throw new Error('Supabase configuration is unavailable.');
+  const response=await fetch(`${url}/rest/v1/assets?id=eq.${encodeURIComponent(siteId)}&select=details`,{cache:'no-store',credentials:'omit',referrerPolicy:'no-referrer',headers:{Accept:'application/json',apikey:key,Authorization:`Bearer ${key}`}});if(!response.ok)throw new Error('The CMDB service is unavailable. Please try again.');
+  const rows=await response.json(),record=rows[0]?.details;if(!record)throw new Error(`Site ${siteId} was not found in the CMDB.`);renderRecord(record);
 }
 loadRecord().catch(error=>{document.querySelector('#record-loading').hidden=true;const output=document.querySelector('#record-error');output.textContent=error.message;output.hidden=false;});
