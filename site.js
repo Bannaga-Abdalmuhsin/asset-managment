@@ -1,8 +1,8 @@
 const SYSTEMS = [
   ['Radio & Technology',['2G Availability','2G Configuration','LTE Availability','LTE Configuration','5G Availability','5G Configuration','2G/3G/LTE/5G','Multi Beam COWs','Configuration Level']],
-  ['Overview & Location',['COW ID','Site Label','EBU/Royal','Region','District','City','Remote & Metropolitan','Location','Latitude','Longitude','Site Status','Last Deploying Date','Under Replacement','1st Deploying Date','COW OLD/NEW','Vendor','V-Sat']],
   ['Microwave & Transmission',['MW Dish','MW Frequency','MW Link Type','Remarks']],
   ['Tower, Civil & Access',['Shelter/Outdoor','Indoor Light Status','Outdoor Light Status','Tower Light Status','Pad Locks Status','Rented Land','Land Owner','Rental Cost','VEHICAL MAKE','PLATE #','Tower Height','TOWER TYPE','Tower System','GPS Status','FE ID']],
+  ['Overview & Location',['COW ID','Site Label','EBU/Royal','Region','District','City','Remote & Metropolitan','Location','Latitude','Longitude','Site Status','Last Deploying Date','Under Replacement','1st Deploying Date','COW OLD/NEW','Vendor','V-Sat']],
   ['Power & Generator',['SEC connection','MDB Type & Status','PG Status','Genset QTY','ACES TG','Genset Repair Status','Genset Make','Engine Make','Alternator Make','Capacity','ATS Status','Cooling System Status','Fuel Tank capacity']],
   ['HVAC',['AC Make','AC Capacity','AC Type Split/Package','Qty','AC #1 Status','AC #2 Status','HVAC BRAND','PLC Make','HVAC Status']],
   ['DC Power & BBU',['Installed BBU','BBU Volt & Capacity (AH)','No of Cells','No of Strings','BBU Status','BBU Backup Time','BBU Remarks','DC Power Brand','DC Power Capacity','DC Cabinet','Installed Rectifiers','Required Rectifiers']],
@@ -21,7 +21,22 @@ function renderRecord(record){
   const lat=fieldValue(record,'Latitude'),lon=fieldValue(record,'Longitude'),coordinateLink=document.querySelector('#coordinate-link');
   if(/^-?\d+(\.\d+)?$/.test(lat)&&/^-?\d+(\.\d+)?$/.test(lon))coordinateLink.href=`https://www.google.com/maps?q=${encodeURIComponent(lat)},${encodeURIComponent(lon)}`;else coordinateLink.hidden=true;
   const nav=document.querySelector('#category-nav'),categories=document.querySelector('#categories');
-  SYSTEMS.forEach(([title,fields],index)=>{const anchor=`system-${index+1}`,link=create('a','',title);link.href=`#${anchor}`;nav.appendChild(link);const card=create('section','system-card');card.id=anchor;const header=create('header');header.append(create('h2','',title),create('span','',`${fields.length} attributes`));card.appendChild(header);const grid=create('div','system-grid');fields.forEach(label=>{const item=create('div','system-field'),value=fieldValue(record,label);item.append(create('label','',label),create('div',value?'':'empty',value||'Not recorded'));grid.appendChild(item);});card.appendChild(grid);categories.appendChild(card);});
+  const priority=create('div','priority-categories'),secondary=create('div','secondary-categories');
+  priority.setAttribute('aria-label','Primary deployment categories');secondary.setAttribute('aria-label','Additional asset categories');
+  const cards=[];
+  const selectCategory=index=>{
+    cards.forEach((card,cardIndex)=>{card.hidden=cardIndex!==index;});
+    nav.querySelectorAll('[data-category]').forEach(button=>{const active=Number(button.dataset.category)===index;button.classList.toggle('active',active);button.setAttribute('aria-selected',String(active));});
+  };
+  SYSTEMS.forEach(([title,fields],index)=>{
+    const anchor=`system-${index+1}`,button=create('button',index<3?'category-card priority':'category-card');
+    button.type='button';button.dataset.category=index;button.setAttribute('role','tab');button.setAttribute('aria-controls',anchor);
+    const shortTitle=title.split(' & ')[0].split(',')[0];button.append(create('strong','',shortTitle),create('small','',index<3?'Priority telecom asset':`${fields.length} attributes`));
+    button.addEventListener('click',()=>selectCategory(index));(index<3?priority:secondary).appendChild(button);
+    const card=create('section','system-card');card.id=anchor;card.hidden=index!==0;const header=create('header');header.append(create('h2','',title),create('span','',`${fields.length} attributes`));card.appendChild(header);
+    const grid=create('div','system-grid');fields.forEach(label=>{const item=create('div','system-field'),value=fieldValue(record,label);item.append(create('label','',label),create('div',value?'':'empty',value||'Not recorded'));grid.appendChild(item);});card.appendChild(grid);categories.appendChild(card);cards.push(card);
+  });
+  nav.append(priority,secondary);selectCategory(0);
   document.querySelector('#record-loading').hidden=true;document.querySelector('#record').hidden=false;
 }
 async function loadRecord(){
