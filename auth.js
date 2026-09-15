@@ -79,14 +79,11 @@ function initializeSettings(user, token) {
       const response = await fetch(`${url}/storage/v1/object/avatars/${path}`, { method: 'POST', headers: { apikey: key, Authorization: `Bearer ${token}`, 'Content-Type': file.type, 'x-upsert': 'true' }, body: file });
       if (!response.ok) {
         const result = await response.json();
-        const message = /bucket not found/i.test(result.message || '')
-          ? 'Profile image storage is not configured. Create the private avatars bucket in Supabase first.'
-          : result.message || 'Profile image upload failed.';
-        throw new Error(message);
+        throw new Error('Unable to upload profile image. Please try again or contact the administrator.');
       }
       user = await updateSupabaseUser({ data: { ...user.user_metadata, avatar_path: path } }, token);
       await renderUser(user, token); avatarForm.reset(); showAccountMessage('Profile image updated successfully.');
-    } catch (error) { showAccountMessage(error.message, true); } finally { button.disabled = false; }
+    } catch (error) { showAccountMessage('Unable to upload profile image. Please try again or contact the administrator.', true); } finally { button.disabled = false; }
   });
 }
 
