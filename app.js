@@ -1,11 +1,13 @@
 const MAP_API = './api/assets/map';
 
 const PROVINCE_TO_REGION = {
-  'sa-sh': 'East', 'sa-hs': 'East',
-  'sa-ri': 'Central', 'sa-qs': 'Central', 'sa-ha': 'Central',
-  'sa-tb': 'West', 'sa-md': 'West', 'sa-mk': 'West',
-  'sa-ba': 'South', 'sa-as': 'South', 'sa-nj': 'South', 'sa-jz': 'South'
+  'SA-04': 'East', 'SA-08': 'East',
+  'SA-01': 'Central', 'SA-05': 'Central', 'SA-06': 'Central',
+  'SA-07': 'West', 'SA-03': 'West', 'SA-02': 'West',
+  'SA-11': 'South', 'SA-14': 'South', 'SA-10': 'South', 'SA-09': 'South'
 };
+
+const SAUDI_PROVINCES_GEOJSON = 'https://media.githubusercontent.com/media/wmgeolab/geoBoundaries/9469f09/releaseData/gbOpen/SAU/ADM1/geoBoundaries-SAU-ADM1_simplified.geojson';
 
 const REGION_COLORS = { Central: '#6889d8', East: '#26a69a', South: '#d98b45', West: '#9b72cf', Other: '#304458' };
 let assets = [];
@@ -77,23 +79,18 @@ function renderMap() {
   infoWindow = new google.maps.InfoWindow();
   Promise.all([
     fetch('https://raw.githubusercontent.com/johan/world.geo.json/master/countries/SAU.geo.json').then(response => response.json()),
-    fetch('https://code.highcharts.com/mapdata/countries/sa/sa-all.geo.json').then(response => response.json())
+    fetch(SAUDI_PROVINCES_GEOJSON).then(response => {
+      if (!response.ok) throw new Error('Saudi regional boundary data unavailable');
+      return response.json();
+    })
   ]).then(([country, geojson]) => {
     const borderPath = country.features[0].geometry.coordinates[0].map(([lng, lat]) => ({ lat, lng }));
     new google.maps.Polyline({ map, path: borderPath, strokeColor: '#202a35', strokeOpacity: 1, strokeWeight: 3, clickable: false, zIndex: 3 });
     regionData = new google.maps.Data({ map }); regionData.addGeoJson(geojson);
-    regionData.setStyle(feature => { const region = PROVINCE_TO_REGION[feature.getProperty('hc-key')] || 'Other'; return { strokeOpacity: 0, fillColor: REGION_COLORS[region], fillOpacity: 0, zIndex: 2 }; });
-    regionData.addListener('mouseover', event => regionData.overrideStyle(event.feature, { fillOpacity: .12, strokeWeight: 3 }));
+    regionData.setStyle(feature => { const region = PROVINCE_TO_REGION[feature.getProperty('shapeISO')] || 'Other'; return { strokeColor: REGION_COLORS[region], strokeOpacity: 1, strokeWeight: 2.5, fillColor: REGION_COLORS[region], fillOpacity: 0, zIndex: 2 }; });
+    regionData.addListener('mouseover', event => regionData.overrideStyle(event.feature, { fillOpacity: .10, strokeWeight: 4 }));
     regionData.addListener('mouseout', event => regionData.revertStyle(event.feature));
-    regionData.addListener('click', event => focusRegion(PROVINCE_TO_REGION[event.feature.getProperty('hc-key')] || 'Other'));
-    geojson.features.forEach(feature => {
-      const region = PROVINCE_TO_REGION[feature.properties['hc-key']] || 'Other';
-      const polygons = feature.geometry.type === 'MultiPolygon' ? feature.geometry.coordinates : [feature.geometry.coordinates];
-      polygons.forEach(polygon => polygon.forEach(ring => new google.maps.Polyline({
-        map, path: ring.map(([lng, lat]) => ({ lat, lng })), strokeColor: REGION_COLORS[region],
-        strokeOpacity: 1, strokeWeight: 3, clickable: false, zIndex: 4
-      })));
-    });
+    regionData.addListener('click', event => focusRegion(PROVINCE_TO_REGION[event.feature.getProperty('shapeISO')] || 'Other'));
     [['Central',{lat:24.55,lng:45.25}],['East',{lat:25.1,lng:50.45}],['West',{lat:24.6,lng:39.2}],['South',{lat:19.25,lng:43.5}]].forEach(([name, position]) => new google.maps.Marker({
       map, position, clickable: false, zIndex: 5,
       icon: { path: google.maps.SymbolPath.CIRCLE, scale: 6, fillColor: REGION_COLORS[name], fillOpacity: 1, strokeColor: '#ffffff', strokeWeight: 2, labelOrigin: new google.maps.Point(0, -19) },
