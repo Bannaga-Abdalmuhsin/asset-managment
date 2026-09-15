@@ -82,11 +82,23 @@ function renderMap() {
     const borderPath = country.features[0].geometry.coordinates[0].map(([lng, lat]) => ({ lat, lng }));
     new google.maps.Polyline({ map, path: borderPath, strokeColor: '#202a35', strokeOpacity: 1, strokeWeight: 3, clickable: false, zIndex: 3 });
     regionData = new google.maps.Data({ map }); regionData.addGeoJson(geojson);
-    regionData.setStyle(feature => { const region = PROVINCE_TO_REGION[feature.getProperty('hc-key')] || 'Other'; return { strokeColor: REGION_COLORS[region], strokeWeight: 2, strokeOpacity: .95, fillColor: REGION_COLORS[region], fillOpacity: 0, zIndex: 2 }; });
+    regionData.setStyle(feature => { const region = PROVINCE_TO_REGION[feature.getProperty('hc-key')] || 'Other'; return { strokeOpacity: 0, fillColor: REGION_COLORS[region], fillOpacity: 0, zIndex: 2 }; });
     regionData.addListener('mouseover', event => regionData.overrideStyle(event.feature, { fillOpacity: .12, strokeWeight: 3 }));
     regionData.addListener('mouseout', event => regionData.revertStyle(event.feature));
     regionData.addListener('click', event => focusRegion(PROVINCE_TO_REGION[event.feature.getProperty('hc-key')] || 'Other'));
-    [['Central',{lat:24.55,lng:45.25}],['East',{lat:25.1,lng:50.45}],['West',{lat:24.6,lng:39.2}],['South',{lat:19.25,lng:43.5}]].forEach(([name, position]) => new google.maps.Marker({ map, position, clickable: false, zIndex: 4, icon: { path: google.maps.SymbolPath.CIRCLE, scale: 0 }, label: { text: name.toUpperCase(), color: '#ffffff', fontSize: '12px', fontWeight: '800' } }));
+    geojson.features.forEach(feature => {
+      const region = PROVINCE_TO_REGION[feature.properties['hc-key']] || 'Other';
+      const polygons = feature.geometry.type === 'MultiPolygon' ? feature.geometry.coordinates : [feature.geometry.coordinates];
+      polygons.forEach(polygon => polygon.forEach(ring => new google.maps.Polyline({
+        map, path: ring.map(([lng, lat]) => ({ lat, lng })), strokeColor: REGION_COLORS[region],
+        strokeOpacity: 1, strokeWeight: 3, clickable: false, zIndex: 4
+      })));
+    });
+    [['Central',{lat:24.55,lng:45.25}],['East',{lat:25.1,lng:50.45}],['West',{lat:24.6,lng:39.2}],['South',{lat:19.25,lng:43.5}]].forEach(([name, position]) => new google.maps.Marker({
+      map, position, clickable: false, zIndex: 5,
+      icon: { path: google.maps.SymbolPath.CIRCLE, scale: 6, fillColor: REGION_COLORS[name], fillOpacity: 1, strokeColor: '#ffffff', strokeWeight: 2, labelOrigin: new google.maps.Point(0, -19) },
+      label: { text: name.toUpperCase(), color: '#ffffff', fontSize: '12px', fontWeight: '800', className: 'gm-region-label' }
+    }));
   }).catch(error => console.warn('Regional boundaries unavailable', error));
 }
 
