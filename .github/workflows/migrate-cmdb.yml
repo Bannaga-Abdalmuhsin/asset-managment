@@ -1,6 +1,10 @@
 name: Migrate CMDB to Supabase
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/migrate-cmdb.yml
   workflow_dispatch:
 
 permissions:
