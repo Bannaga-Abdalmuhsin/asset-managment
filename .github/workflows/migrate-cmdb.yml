@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - .github/workflows/migrate-cmdb.yml
+      - scripts/migrate-cmdb.mjs
   workflow_dispatch:
 
 permissions:
