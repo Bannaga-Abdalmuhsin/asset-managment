@@ -1,4 +1,3 @@
-const AUTH_USERNAME_DOMAIN = 'cow-assets.local';
 const authConfig = () => ({ url: String(window.ASSET_APP_CONFIG?.supabaseUrl || '').replace(/\/$/, ''), key: String(window.ASSET_APP_CONFIG?.supabaseAnonKey || '') });
 const accountDisplayName = user => String(user.user_metadata?.display_name || user.user_metadata?.username || user.email?.split('@')[0] || 'User').trim();
 
@@ -60,8 +59,8 @@ function initializeSettings(user, token) {
     if (!/^[a-z0-9._-]{3,32}$/.test(username)) return showAccountMessage('Use 3–32 letters, numbers, dots, underscores or hyphens.', true);
     button.disabled = true;
     try {
-      user = await updateSupabaseUser({ email: `${username}@${AUTH_USERNAME_DOMAIN}`, data: { ...user.user_metadata, username, display_name: username } }, token);
-      await renderUser(user, token); showAccountMessage('Username updated successfully.');
+      user = await updateSupabaseUser({ data: { ...user.user_metadata, username, display_name: username } }, token);
+      await renderUser(user, token); showAccountMessage('Display username updated successfully.');
     } catch (error) { showAccountMessage(error.message, true); } finally { button.disabled = false; }
   });
   const passwordForm = document.querySelector('#password-form');
@@ -78,7 +77,13 @@ function initializeSettings(user, token) {
     try {
       const { url, key } = authConfig(), extension = (file.name.split('.').pop() || 'jpg').toLowerCase().replace(/[^a-z0-9]/g, ''), path = `${user.id}/profile.${extension}`;
       const response = await fetch(`${url}/storage/v1/object/avatars/${path}`, { method: 'POST', headers: { apikey: key, Authorization: `Bearer ${token}`, 'Content-Type': file.type, 'x-upsert': 'true' }, body: file });
-      if (!response.ok) { const result = await response.json(); throw new Error(result.message || 'Profile image upload failed.'); }
+      if (!response.ok) {
+        const result = await response.json();
+        const message = /bucket not found/i.test(result.message || '')
+          ? 'Profile image storage is not configured. Create the private avatars bucket in Supabase first.'
+          : result.message || 'Profile image upload failed.';
+        throw new Error(message);
+      }
       user = await updateSupabaseUser({ data: { ...user.user_metadata, avatar_path: path } }, token);
       await renderUser(user, token); avatarForm.reset(); showAccountMessage('Profile image updated successfully.');
     } catch (error) { showAccountMessage(error.message, true); } finally { button.disabled = false; }
