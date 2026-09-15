@@ -25,7 +25,11 @@
         <div id="suggestions" class="suggestions" hidden></div>
       </div>
 
-      <div class="live-state"><span></span><b id="data-state">Connecting assets</b></div>
+      <div class="live-state account-state">
+        <span class="account-dot"></span>
+        <div><small>Logged in as</small><b id="current-user">Loading…</b></div>
+        <button class="logout-button" type="button" onclick="assetLogout()">Logout</button>
+      </div>
     </header>
 
     <section class="map-stage" aria-label="Saudi Arabia COW sites map">
@@ -45,7 +49,7 @@
   <div id="toast" class="toast" role="status"></div>
 
   <script src="config.js?v=4"></script>
-  <script src="auth.js?v=1"></script>
-  <script src="app.js?v=17"></script>
+  <script src="auth.js?v=2"></script>
+  <script src="app.js?v=18"></script>
 </body>
 </html>
