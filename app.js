@@ -67,8 +67,7 @@ function loadGoogleMaps() {
 function renderMap() {
   const kingdomBounds = new google.maps.LatLngBounds({ lat: 16.0, lng: 34.4 }, { lat: 32.6, lng: 55.8 });
   map = new google.maps.Map($('#map'), {
-    center: { lat: 24.1, lng: 45.2 }, zoom: 5, minZoom: 5, maxZoom: 19,
-    restriction: { latLngBounds: { north: 34.5, south: 14.5, west: 32.5, east: 58.0 }, strictBounds: true },
+    center: { lat: 24.1, lng: 45.2 }, zoom: 5, minZoom: 2, maxZoom: 19,
     mapTypeId: 'roadmap', mapTypeControl: true, mapTypeControlOptions: { position: google.maps.ControlPosition.RIGHT_TOP },
     zoomControl: true, zoomControlOptions: { position: google.maps.ControlPosition.RIGHT_CENTER },
     streetViewControl: true, streetViewControlOptions: { position: google.maps.ControlPosition.RIGHT_CENTER },
