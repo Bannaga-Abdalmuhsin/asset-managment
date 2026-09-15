@@ -28,7 +28,8 @@ async function loadRecord(){
   const siteId=normalize(new URLSearchParams(location.search).get('site')).toUpperCase();
   if(!/^[A-Z0-9_-]{2,24}$/.test(siteId))throw new Error('A valid site ID is required. Return to the national map and select a site.');
   const url=normalize(window.ASSET_APP_CONFIG?.supabaseUrl).replace(/\/$/,''),key=normalize(window.ASSET_APP_CONFIG?.supabaseAnonKey);if(!url||!key)throw new Error('Supabase configuration is unavailable.');
-  const response=await fetch(`${url}/rest/v1/assets?id=eq.${encodeURIComponent(siteId)}&select=details`,{cache:'no-store',credentials:'omit',referrerPolicy:'no-referrer',headers:{Accept:'application/json',apikey:key,Authorization:`Bearer ${key}`}});if(!response.ok)throw new Error('The CMDB service is unavailable. Please try again.');
+  const accessToken=sessionStorage.getItem('asset_access_token')||key;
+  const response=await fetch(`${url}/rest/v1/assets?id=eq.${encodeURIComponent(siteId)}&select=details`,{cache:'no-store',credentials:'omit',referrerPolicy:'no-referrer',headers:{Accept:'application/json',apikey:key,Authorization:`Bearer ${accessToken}`}});if(!response.ok)throw new Error('The CMDB service is unavailable. Please try again.');
   const rows=await response.json(),record=rows[0]?.details;if(!record)throw new Error(`Site ${siteId} was not found in the CMDB.`);renderRecord(record);
 }
-loadRecord().catch(error=>{document.querySelector('#record-loading').hidden=true;const output=document.querySelector('#record-error');output.textContent=error.message;output.hidden=false;});
+window.assetAuthReady().then(loadRecord).catch(error=>{document.querySelector('#record-loading').hidden=true;const output=document.querySelector('#record-error');output.textContent=error.message;output.hidden=false;});
