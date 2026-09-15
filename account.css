@@ -1,0 +1,22 @@
+.settings-body { min-height:100vh; overflow:auto; background:#f4f1f6; color:#24182c; }
+.settings-topbar { position:sticky; top:0; }
+.settings-topbar .back-link { justify-self:center; }
+.settings-logout { justify-self:end; padding:9px 13px; border:1px solid rgba(255,255,255,.25); border-radius:9px; background:rgba(255,255,255,.1); color:#fff; font-weight:800; cursor:pointer; }
+.settings-shell { width:min(980px,calc(100% - 32px)); margin:0 auto; padding:48px 0 72px; }
+.settings-title p { margin:0 0 8px; color:#4f008c; font-size:.7rem; font-weight:900; letter-spacing:.15em; }
+.settings-title h1 { margin:0; font-size:clamp(2.1rem,5vw,3.4rem); }
+.settings-title span { display:block; margin-top:8px; color:#766c7d; }
+.profile-card { margin-top:28px; border:1px solid #ded8e5; border-radius:20px; overflow:hidden; background:#fff; box-shadow:0 20px 60px rgba(47,20,60,.12); }
+.profile-summary { display:flex; align-items:center; gap:18px; padding:26px; background:linear-gradient(110deg,#3b006b,#4f008c 60%,#6d00b3); color:#fff; }
+.profile-avatar { width:74px; height:74px; display:grid; place-items:center; overflow:hidden; border:3px solid rgba(255,255,255,.5); border-radius:50%; background:#fff; color:#4f008c; font-size:1.4rem; font-weight:900; }
+.profile-avatar img { width:100%; height:100%; object-fit:cover; }
+.profile-summary h2,.profile-summary p { margin:0 0 5px; }.profile-summary p,.profile-summary small { color:rgba(255,255,255,.75); }
+.settings-form { display:grid; grid-template-columns:1fr minmax(220px,300px) auto; align-items:end; gap:22px; padding:24px 26px; border-bottom:1px solid #ebe7ef; }
+.settings-form h3 { margin:0 0 6px; color:#3a2d42; }.settings-form p { margin:0; color:#827789; font-size:.78rem; }
+.settings-form label { display:grid; gap:7px; color:#665c70; font-size:.72rem; font-weight:800; }
+.settings-form input { min-width:0; height:43px; padding:0 12px; border:1px solid #d8d0df; border-radius:9px; background:#fff; color:#24182c; }
+.settings-form input[type="file"] { padding:9px; }
+.settings-form button { height:43px; padding:0 15px; border:0; border-radius:9px; background:#4f008c; color:#fff; font-weight:800; cursor:pointer; }
+.settings-form button:disabled { opacity:.55; cursor:wait; }
+.settings-message { margin:20px 26px; padding:12px; border-radius:9px; background:#e9fbf4; color:#08764e; font-size:.78rem; }.settings-message.error { background:#fff0ef; color:#b42318; }
+@media(max-width:720px){.settings-form{grid-template-columns:1fr;gap:14px}.settings-topbar{grid-template-columns:1fr auto}.settings-topbar .back-link{display:none}.profile-summary{padding:22px}}
