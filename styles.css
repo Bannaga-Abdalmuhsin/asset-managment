@@ -13,6 +13,8 @@
 
 * { box-sizing: border-box; }
 html, body { margin: 0; min-height: 100%; background: var(--bg); color: var(--ink); font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; }
+.auth-pending body { visibility: hidden; }
+.authenticated body { visibility: visible; }
 body { overflow: hidden; }
 button, input { font: inherit; }
 
@@ -55,6 +57,9 @@ button, input { font: inherit; }
 #map { position: absolute; inset: 0; background: #08131f; }
 .loading-card { position: absolute; left: 50%; top: 50%; z-index: 10; transform: translate(-50%,-50%); display: flex; align-items: center; gap: 11px; padding: 14px 18px; border: 1px solid var(--line); border-radius: 14px; background: rgba(8,17,28,.9); color: #b3bfcb; font-size: .85rem; }
 .loading-card[hidden] { display: none; }
+.status-filter { position:absolute;z-index:1000;left:50%;bottom:22px;transform:translateX(-50%);display:flex;gap:5px;padding:5px;border:1px solid rgba(255,255,255,.12);border-radius:14px;background:rgba(12,18,27,.88);box-shadow:0 12px 36px rgba(0,0,0,.28);backdrop-filter:blur(14px); }
+.status-filter button { display:flex;align-items:center;gap:7px;padding:9px 14px;border:0;border-radius:9px;background:transparent;color:#aeb8c3;font-size:.74rem;font-weight:800;cursor:pointer; }
+.status-filter button:hover,.status-filter button.active { background:#4f008c;color:#fff; }
 .spinner { width: 17px; height: 17px; border: 2px solid rgba(255,255,255,.15); border-top-color: #fff; border-radius: 50%; animation: spin .8s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
