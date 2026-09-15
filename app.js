@@ -10,9 +10,9 @@ const PROVINCE_TO_REGION = {
 const REGION_COLORS = { Central: '#6889d8', East: '#26a69a', South: '#d98b45', West: '#9b72cf', Other: '#304458' };
 let assets = [];
 let map;
-let regionLayer;
-let onlineLayer;
-let offlineLayer;
+let regionData;
+let infoWindow;
+let siteMarkers = [];
 const markerById = new Map();
 
 const $ = (selector) => document.querySelector(selector);
@@ -28,7 +28,6 @@ const regionName = region => {
 };
 
 async function loadAssets() {
-  renderMap();
   const response = await fetch(MAP_API, { cache: 'no-store', credentials: 'include', headers: { Accept: 'application/json' } });
   if (!response.ok) throw new Error('Secure CMDB API unavailable');
   const payload = await response.json();
@@ -52,61 +51,63 @@ function updateCounts() {
   });
 }
 
+function loadGoogleMaps() {
+  const key = normalize(window.ASSET_APP_CONFIG?.googleMapsApiKey);
+  if (!key) return Promise.reject(new Error('Google Maps API key is not configured'));
+  return new Promise((resolve, reject) => {
+    window.__assetMapReady = resolve;
+    const script = document.createElement('script');
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(key)}&callback=__assetMapReady&v=weekly`;
+    script.async = true; script.defer = true;
+    script.onerror = () => reject(new Error('Google Maps JavaScript API failed to load'));
+    document.head.appendChild(script);
+  });
+}
+
 function renderMap() {
-  const kingdomBounds = L.latLngBounds([16.0, 34.4], [32.6, 55.8]);
-  map = L.map('map', { zoomControl: false, minZoom: 5, maxZoom: 18, zoomSnap: .25, zoomDelta: .5, maxBounds: kingdomBounds.pad(.16), maxBoundsViscosity: 1, preferCanvas: true });
-  L.control.zoom({ position: 'topright' }).addTo(map);
-  L.control.scale({ position: 'bottomleft', metric: true, imperial: false }).addTo(map);
-  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; OpenStreetMap contributors', maxZoom: 19
-  }).addTo(map);
-  onlineLayer = L.markerClusterGroup({ chunkedLoading: true, maxClusterRadius: 38, disableClusteringAtZoom: 12 });
-  offlineLayer = L.markerClusterGroup({ chunkedLoading: true, maxClusterRadius: 38, disableClusteringAtZoom: 12 });
-  map.addLayer(onlineLayer); map.addLayer(offlineLayer);
-  L.control.layers(null, { 'ON-AIR Sites': onlineLayer, 'OFF-AIR Sites': offlineLayer }, { position: 'topright', collapsed: true }).addTo(map);
-  map.fitBounds(kingdomBounds, { padding: [28,28], maxZoom: 6.5 });
+  const kingdomBounds = new google.maps.LatLngBounds({ lat: 16.0, lng: 34.4 }, { lat: 32.6, lng: 55.8 });
+  map = new google.maps.Map($('#map'), {
+    center: { lat: 24.1, lng: 45.2 }, zoom: 5, minZoom: 5, maxZoom: 19,
+    restriction: { latLngBounds: { north: 34.5, south: 14.5, west: 32.5, east: 58.0 }, strictBounds: true },
+    mapTypeId: 'roadmap', mapTypeControl: true, mapTypeControlOptions: { position: google.maps.ControlPosition.RIGHT_TOP },
+    zoomControl: true, zoomControlOptions: { position: google.maps.ControlPosition.RIGHT_CENTER },
+    streetViewControl: true, streetViewControlOptions: { position: google.maps.ControlPosition.RIGHT_CENTER },
+    fullscreenControl: true, scaleControl: true, clickableIcons: false,
+    styles: [{ elementType: 'geometry', stylers: [{ color: '#17202a' }] }, { elementType: 'labels.text.stroke', stylers: [{ color: '#17202a' }] }, { elementType: 'labels.text.fill', stylers: [{ color: '#8d9aaa' }] }, { featureType: 'water', elementType: 'geometry', stylers: [{ color: '#07101b' }] }]
+  });
+  map.fitBounds(kingdomBounds, 30);
+  infoWindow = new google.maps.InfoWindow();
   Promise.all([
     fetch('https://raw.githubusercontent.com/johan/world.geo.json/master/countries/SAU.geo.json').then(response => response.json()),
     fetch('https://code.highcharts.com/mapdata/countries/sa/sa-all.geo.json').then(response => response.json())
   ]).then(([country, geojson]) => {
-    const hole = country.features[0].geometry.coordinates[0].map(([lng, lat]) => [lat, lng]);
-    const outside = [[-85,-180],[-85,180],[85,180],[85,-180]];
-    L.polygon([outside, hole], { stroke: false, fillColor: '#06101b', fillOpacity: .9, interactive: false }).addTo(map);
-    regionLayer = L.geoJSON(geojson, {
-      style(feature) {
-        const region = PROVINCE_TO_REGION[feature.properties['hc-key']] || 'Other';
-        return { color: '#d3dce5', weight: 1.35, opacity: .82, fillColor: REGION_COLORS[region], fillOpacity: .3 };
-      },
-      onEachFeature(feature, layer) {
-        const region = PROVINCE_TO_REGION[feature.properties['hc-key']] || 'Other';
-        layer.bindTooltip(`${region} Region · ${feature.properties.name}`, { sticky: true });
-        layer.on({ mouseover: () => layer.setStyle({ fillOpacity: .5, weight: 2 }), mouseout: () => regionLayer.resetStyle(layer), click: () => focusRegion(region) });
-      }
-    }).addTo(map);
-    [['Central',[24.55,45.25]],['East',[25.1,50.45]],['West',[24.6,39.2]],['South',[19.25,43.5]]].forEach(([name, point]) => L.marker(point, {
-      interactive: false,
-      icon: L.divIcon({ className: 'region-label', html: `<span>${name}</span>`, iconSize: [90,28], iconAnchor: [45,14] })
-    }).addTo(map));
+    const hole = country.features[0].geometry.coordinates[0].map(([lng, lat]) => ({ lat, lng })).reverse();
+    new google.maps.Polygon({ map, paths: [[{lat:-85,lng:-180},{lat:-85,lng:180},{lat:85,lng:180},{lat:85,lng:-180}], hole], strokeOpacity: 0, fillColor: '#06101b', fillOpacity: .86, clickable: false, zIndex: 1 });
+    regionData = new google.maps.Data({ map }); regionData.addGeoJson(geojson);
+    regionData.setStyle(feature => { const region = PROVINCE_TO_REGION[feature.getProperty('hc-key')] || 'Other'; return { strokeColor: '#d3dce5', strokeWeight: 1.35, strokeOpacity: .82, fillColor: REGION_COLORS[region], fillOpacity: .32, zIndex: 2 }; });
+    regionData.addListener('mouseover', event => regionData.overrideStyle(event.feature, { fillOpacity: .55, strokeWeight: 2 }));
+    regionData.addListener('mouseout', event => regionData.revertStyle(event.feature));
+    regionData.addListener('click', event => focusRegion(PROVINCE_TO_REGION[event.feature.getProperty('hc-key')] || 'Other'));
+    [['Central',{lat:24.55,lng:45.25}],['East',{lat:25.1,lng:50.45}],['West',{lat:24.6,lng:39.2}],['South',{lat:19.25,lng:43.5}]].forEach(([name, position]) => new google.maps.Marker({ map, position, clickable: false, zIndex: 4, icon: { path: google.maps.SymbolPath.CIRCLE, scale: 0 }, label: { text: name.toUpperCase(), color: '#ffffff', fontSize: '12px', fontWeight: '800' } }));
   }).catch(error => console.warn('Regional boundaries unavailable', error));
 }
 
 function drawMarkers() {
-  if (!map || !onlineLayer || !offlineLayer) return;
-  onlineLayer.clearLayers(); offlineLayer.clearLayers(); markerById.clear();
+  if (!map) return;
+  siteMarkers.forEach(marker => marker.setMap(null)); siteMarkers = []; markerById.clear();
   assets.forEach(asset => {
     const online = isOnAir(asset.status);
-    const marker = L.circleMarker([asset.lat, asset.lon], { radius: online ? 5 : 5.5, color: '#f4f7fb', weight: 1, fillColor: online ? '#32d583' : '#f04438', fillOpacity: .95 });
-    marker.bindTooltip(`<b>${escapeHTML(asset.id)}</b><br>${escapeHTML(asset.status || 'Unknown')} · ${escapeHTML(asset.region)}`, { direction: 'top', offset: [0,-5] });
-    marker.on('click', () => openDetails(asset, false));
+    const marker = new google.maps.Marker({ map, position: { lat: asset.lat, lng: asset.lon }, title: asset.id, zIndex: 6, icon: { path: google.maps.SymbolPath.CIRCLE, scale: online ? 5 : 5.5, fillColor: online ? '#32d583' : '#f04438', fillOpacity: .96, strokeColor: '#f4f7fb', strokeWeight: 1 } });
+    marker.addListener('click', () => { infoWindow.setContent(`<div class="gm-asset"><b>${escapeHTML(asset.id)}</b><span>${escapeHTML(asset.status || 'Unknown')} · ${escapeHTML(asset.region)}</span><a href="site.html?site=${encodeURIComponent(asset.id)}">View asset record →</a></div>`); infoWindow.open({ map, anchor: marker }); });
     markerById.set(asset.id, marker);
-    (online ? onlineLayer : offlineLayer).addLayer(marker);
+    siteMarkers.push(marker);
   });
 }
 
 function focusRegion(region) {
   document.querySelectorAll('.region-strip button').forEach(button => button.classList.toggle('selected', button.dataset.region === region));
-  const points = assets.filter(asset => asset.region === region).map(asset => [asset.lat, asset.lon]);
-  if (points.length) map.fitBounds(points, { padding: [70,70], maxZoom: 8, animate: true });
+  const points = assets.filter(asset => asset.region === region);
+  if (points.length) { const bounds = new google.maps.LatLngBounds(); points.forEach(asset => bounds.extend({lat:asset.lat,lng:asset.lon})); map.fitBounds(bounds, 70); google.maps.event.addListenerOnce(map, 'idle', () => { if (map.getZoom() > 8) map.setZoom(8); }); }
 }
 
 function searchAssets(query) {
@@ -165,8 +166,8 @@ document.addEventListener('keydown', event => {
 });
 document.addEventListener('click', event => { if (!event.target.closest('.search-wrap')) $('#suggestions').hidden = true; });
 document.querySelectorAll('.region-strip button').forEach(button => button.addEventListener('click', () => focusRegion(button.dataset.region)));
-loadAssets().catch(error => {
-  $('#loading').innerHTML = 'Secure CMDB API not configured';
-  $('#data-state').textContent = 'Secure API required';
+loadGoogleMaps().then(() => { renderMap(); return loadAssets(); }).catch(error => {
+  $('#loading').textContent = error.message.includes('key') ? 'Google Maps API key required' : 'Secure CMDB API not configured';
+  $('#data-state').textContent = error.message.includes('key') ? 'Map key required' : 'Secure API required';
   console.error(error);
 });
