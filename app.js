@@ -7,6 +7,7 @@ let assets = [];
 let map;
 let infoWindow;
 let siteMarkers = [];
+let activeStatusFilter = 'all';
 const markerById = new Map();
 
 const $ = (selector) => document.querySelector(selector);
@@ -24,16 +25,17 @@ const regionName = region => {
 async function loadAssets() {
   const { url, key } = supabaseConfig();
   if (!url || !key) throw new Error('Supabase configuration unavailable');
+  const accessToken = sessionStorage.getItem('asset_access_token') || key;
   const response = await fetch(`${url}/rest/v1/assets?select=id,lat,lon,status,region,district,city&order=id`, {
     cache: 'no-store', credentials: 'omit', referrerPolicy: 'no-referrer',
-    headers: { Accept: 'application/json', apikey: key, Authorization: `Bearer ${key}` }
+    headers: { Accept: 'application/json', apikey: key, Authorization: `Bearer ${accessToken}` }
   });
   if (!response.ok) throw new Error('Asset data service unavailable');
   const payload = await response.json();
   const records = Array.isArray(payload) ? payload : payload.assets;
   if (!Array.isArray(records)) throw new Error('Invalid CMDB API response');
   assets = records.map(asset => ({ ...asset, District: asset.district, City: asset.city, id: normalize(asset.id), region: regionName(asset.region), lat: Number(asset.lat), lon: Number(asset.lon), status: normalize(asset.status) })).filter(asset => asset.id && Number.isFinite(asset.lat) && Number.isFinite(asset.lon));
-  applyAssetData(`${assets.length} assets · Supabase connected`);
+  applyAssetData(`${assets.length} assets`);
 }
 
 function applyAssetData(stateText) {
@@ -75,7 +77,7 @@ function renderMap() {
 function drawMarkers() {
   if (!map) return;
   siteMarkers.forEach(marker => marker.setMap(null)); siteMarkers = []; markerById.clear();
-  assets.forEach(asset => {
+  assets.filter(asset => activeStatusFilter === 'all' || (activeStatusFilter === 'on-air' ? isOnAir(asset.status) : !isOnAir(asset.status))).forEach(asset => {
     const online = isOnAir(asset.status);
     const marker = new google.maps.Marker({ map, position: { lat: asset.lat, lng: asset.lon }, title: asset.id, zIndex: 6, icon: { path: google.maps.SymbolPath.CIRCLE, scale: online ? 5 : 5.5, fillColor: online ? '#32d583' : '#f04438', fillOpacity: .96, strokeColor: '#f4f7fb', strokeWeight: 1 } });
     marker.addListener('click', () => { infoWindow.setContent(`<div class="gm-asset"><b>${escapeHTML(asset.id)}</b><span>${escapeHTML(asset.status || 'Unknown')} · ${escapeHTML(asset.region)}</span><a href="site.html?site=${encodeURIComponent(asset.id)}">View asset record →</a></div>`); infoWindow.open({ map, anchor: marker }); });
@@ -139,7 +141,12 @@ document.addEventListener('keydown', event => {
   if (event.key === '/' && document.activeElement !== $('#site-search')) { event.preventDefault(); $('#site-search').focus(); }
 });
 document.addEventListener('click', event => { if (!event.target.closest('.search-wrap')) $('#suggestions').hidden = true; });
-loadGoogleMaps().then(() => { renderMap(); return loadAssets(); }).catch(error => {
+document.querySelectorAll('[data-status-filter]').forEach(button => button.addEventListener('click', () => {
+  activeStatusFilter = button.dataset.statusFilter;
+  document.querySelectorAll('[data-status-filter]').forEach(item => item.classList.toggle('active', item === button));
+  drawMarkers();
+}));
+window.assetAuthReady().then(() => loadGoogleMaps()).then(() => { renderMap(); return loadAssets(); }).catch(error => {
   $('#loading').textContent = error.message.includes('key') ? 'Google Maps configuration required' : 'Unable to load asset data';
   $('#data-state').textContent = error.message.includes('key') ? 'Map unavailable' : 'Data unavailable';
   console.error(error);
