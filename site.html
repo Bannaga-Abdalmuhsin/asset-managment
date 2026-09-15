@@ -8,7 +8,7 @@
   <meta name="referrer" content="no-referrer" />
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self' https://*.supabase.co; object-src 'none'; base-uri 'self'; form-action 'self'; frame-src 'none'; upgrade-insecure-requests" />
   <title>Asset Record · stc COW Asset Management</title>
-  <link rel="stylesheet" href="styles.css?v=11" />
+  <link rel="stylesheet" href="styles.css?v=12" />
   <link rel="stylesheet" href="site.css?v=5" />
 </head>
 <body class="record-body">
@@ -16,24 +16,12 @@
     <a class="brand" href="index.html"><span class="brand-mark"><img src="stc-logo.svg" alt="stc" /></span><span><strong>COW Asset Management</strong></span></a>
     <a class="back-link" href="index.html">← National map</a>
     <div class="record-actions">
-      <div class="live-state account-state">
-        <span class="account-dot"></span>
-        <button id="account-trigger" class="account-trigger" type="button" aria-haspopup="true" aria-expanded="false">
-          <small>Logged in as</small><b id="current-user">Loading…</b><i>⌄</i>
-        </button>
-        <section id="account-menu" class="account-menu" aria-label="User account" hidden>
-          <header><strong>Account</strong><button id="account-close" type="button" aria-label="Close account menu">×</button></header>
-          <dl><div><dt>Email</dt><dd id="account-email">—</dd></div><div><dt>Last sign-in</dt><dd id="account-last-sign-in">—</dd></div></dl>
-          <form id="username-form">
-            <label>Username<input name="username" type="text" minlength="3" maxlength="32" pattern="[A-Za-z0-9._-]+" autocomplete="username" required /></label>
-            <button type="submit">Change username</button>
-          </form>
-          <form id="password-form">
-            <label>New password<input name="password" type="password" minlength="8" autocomplete="new-password" required /></label>
-            <button type="submit">Change password</button>
-          </form>
-          <p id="account-message" class="account-message" hidden></p>
-          <button class="account-logout" type="button" onclick="assetLogout()">Logout</button>
+      <div class="account-state">
+        <button id="account-trigger" class="avatar-button" type="button" aria-label="Open user menu" aria-haspopup="true" aria-expanded="false"><img class="user-avatar" alt="" hidden /><span class="user-initials">U</span></button>
+        <section id="account-menu" class="user-menu" aria-label="User menu" hidden>
+          <div class="user-menu-head"><strong id="current-user">Loading…</strong><small id="account-email">—</small></div>
+          <a href="account.html">Settings</a>
+          <button type="button" data-logout>Logout</button>
         </section>
       </div>
     </div>
@@ -51,7 +39,7 @@
     </article>
   </main>
   <script src="config.js?v=4"></script>
-  <script src="auth.js?v=3"></script>
+  <script src="auth.js?v=4"></script>
   <script src="site.js?v=8"></script>
 </body>
 </html>
