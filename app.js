@@ -22,6 +22,15 @@ const regionName = region => {
   return 'Other';
 };
 
+window.gm_authFailure = () => {
+  const loading = document.querySelector('#loading');
+  if (loading) {
+    loading.hidden = false;
+    loading.classList.add('error');
+    loading.textContent = 'Map is temporarily unavailable. Please try again later.';
+  }
+};
+
 async function loadAssets() {
   const { url, key } = supabaseConfig();
   if (!url || !key) throw new Error('Supabase configuration unavailable');
@@ -51,7 +60,7 @@ function loadGoogleMaps() {
     const script = document.createElement('script');
     script.src = `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(key)}&callback=__assetMapReady&v=weekly`;
     script.async = true; script.defer = true;
-    script.onerror = () => reject(new Error('Google Maps JavaScript API failed to load'));
+    script.onerror = () => reject(new Error('Map is temporarily unavailable. Please try again later.'));
     document.head.appendChild(script);
   });
 }
@@ -146,6 +155,10 @@ document.querySelectorAll('[data-status-filter]').forEach(button => button.addEv
   drawMarkers();
 }));
 window.assetAuthReady().then(() => loadGoogleMaps()).then(() => { renderMap(); return loadAssets(); }).catch(error => {
-  $('#loading').textContent = error.message.includes('key') ? 'Google Maps configuration required' : 'Unable to load asset data';
+  $('#loading').hidden = false;
+  $('#loading').classList.add('error');
+  $('#loading').textContent = error.message.includes('Map') || error.message.includes('key')
+    ? 'Map is temporarily unavailable. Please try again later.'
+    : 'Asset information is temporarily unavailable. Please try again later.';
   console.error(error);
 });
