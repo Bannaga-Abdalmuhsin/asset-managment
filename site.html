@@ -9,13 +9,16 @@
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self' https://*.supabase.co; object-src 'none'; base-uri 'self'; form-action 'self'; frame-src 'none'; upgrade-insecure-requests" />
   <title>Asset Record · stc COW Asset Management</title>
   <link rel="stylesheet" href="styles.css?v=10" />
-  <link rel="stylesheet" href="site.css?v=3" />
+  <link rel="stylesheet" href="site.css?v=4" />
 </head>
 <body class="record-body">
   <header class="topbar record-topbar">
     <a class="brand" href="index.html"><span class="brand-mark"><img src="stc-logo.svg" alt="stc" /></span><span><strong>COW Asset Management</strong></span></a>
     <a class="back-link" href="index.html">← National map</a>
-    <div class="classification">INTERNAL · RESTRICTED</div>
+    <div class="record-actions">
+      <div class="live-state account-state"><span></span><div><small>Logged in as</small><b id="current-user">Loading…</b></div></div>
+      <button class="logout-button" type="button" onclick="assetLogout()">Logout</button>
+    </div>
   </header>
   <main class="record-shell">
     <div id="record-loading" class="record-state"><span class="spinner"></span>Loading authorized asset record…</div>
@@ -30,7 +33,7 @@
     </article>
   </main>
   <script src="config.js?v=4"></script>
-  <script src="auth.js?v=1"></script>
+  <script src="auth.js?v=2"></script>
   <script src="site.js?v=8"></script>
 </body>
 </html>
