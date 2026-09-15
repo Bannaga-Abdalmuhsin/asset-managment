@@ -62,6 +62,7 @@ button, input { font: inherit; }
 .gm-style .gm-ui-hover-effect > span { filter: invert(1); }
 .gm-asset { min-width: 170px; display: grid; gap: 7px; padding: 4px 2px; }
 .gm-asset b { font-size: .95rem; }.gm-asset span { color: #a7b3bf; font-size: .75rem; }.gm-asset a { color: #7fe7b2; text-decoration: none; font-size: .78rem; font-weight: 700; }
+.gm-region-label { padding: 5px 8px !important; border: 1px solid rgba(255,255,255,.28); border-radius: 7px; background: rgba(8,17,28,.88); box-shadow: 0 5px 16px rgba(0,0,0,.28); letter-spacing: .04em; }
 
 .region-strip { position: absolute; z-index: 1000; left: 50%; bottom: 22px; transform: translateX(-50%); display: flex; gap: 4px; padding: 5px; border: 1px solid var(--line); border-radius: 16px; background: rgba(7,16,27,.87); backdrop-filter: blur(16px); box-shadow: 0 15px 45px rgba(0,0,0,.3); }
 .region-strip button { min-width: 118px; display: grid; grid-template-columns: 9px 1fr auto; align-items: center; gap: 8px; padding: 10px 12px; border: 0; border-radius: 11px; color: white; background: transparent; cursor: pointer; }
