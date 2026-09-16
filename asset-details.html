@@ -36,7 +36,7 @@
       <a class="menu-settings" href="account.html">Settings</a>
     </nav>
     <main class="dashboard-content">
-      <div class="dashboard-heading"><p>NATIONAL ASSET VIEW</p><h1>Asset details</h1><span>Counts from the authenticated COW asset records.</span></div>
+      <div class="dashboard-heading"><p>NATIONAL ASSET VIEW</p><h1>Asset details</h1></div>
       <p id="dashboard-state" class="dashboard-state" role="status">Loading asset details…</p>
       <div id="dashboard-data" hidden>
         <section class="dashboard-counts" aria-label="Site status totals">
@@ -54,9 +54,9 @@
           </div>
         </section>
         <section class="dashboard-section warehouse-section" aria-labelledby="warehouse-title">
-          <div class="warehouse-header"><div><p class="section-eyebrow">OFF-AIR INVENTORY</p><h2 id="warehouse-title">Warehouse locations</h2><p>Off-air COWs within 1 km of the listed coordinates. Confirm physical inventory with warehouse records.</p></div><div class="warehouse-totals"><span><strong id="warehouse-total">—</strong> Near warehouses</span><span><strong id="outside-total">—</strong> Still on sites</span></div></div>
+          <div class="warehouse-header"><div><p class="section-eyebrow">OFF-AIR INVENTORY</p><h2 id="warehouse-title">Warehouse locations</h2></div><div class="warehouse-totals"><span><strong id="warehouse-total">—</strong> Near warehouses</span><span><strong id="outside-total">—</strong> Still on sites</span></div></div>
           <div id="warehouse-grid" class="warehouse-grid"></div>
-          <div class="outside-warehouse"><div class="outside-warehouse-head"><div><h3>Off-air and still on sites</h3><p>Off-air COWs outside the listed warehouse locations, including records without coordinates.</p></div><strong id="outside-count">—</strong></div><div id="outside-sites" class="warehouse-site-list"></div></div>
+          <div class="outside-warehouse"><div class="outside-warehouse-head"><div><h3>Off-air and still on sites</h3></div><strong id="outside-count">—</strong></div><div id="outside-sites" class="warehouse-site-list"></div></div>
         </section>
         <section class="dashboard-section"><div class="directory-head"><div><h2>Site records</h2><p>Select a COW to view its full asset record.</p></div><label>Search site ID<input id="directory-search" type="search" placeholder="Search site ID" autocomplete="off" /></label></div><div id="directory-results" class="directory-results"></div></section>
       </div>
