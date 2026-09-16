@@ -11,7 +11,7 @@
   <meta name="referrer" content="no-referrer" />
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://maps.googleapis.com https://maps.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: blob: https://*.supabase.co https://maps.gstatic.com https://maps.googleapis.com https://*.google.com https://*.ggpht.com; connect-src 'self' https://*.supabase.co https://maps.googleapis.com https://maps.gstatic.com https://raw.githubusercontent.com; font-src 'self' https://fonts.gstatic.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-src 'none'; upgrade-insecure-requests" />
   <title>stc COW Asset Management</title>
-  <link rel="stylesheet" href="styles.css?v=14" />
+  <link rel="stylesheet" href="styles.css?v=15" />
 </head>
 <body>
   <main class="app-shell">
@@ -42,6 +42,19 @@
       <div class="map-frame">
         <div id="map" aria-live="polite"></div>
         <div id="loading" class="loading-card"><span class="spinner"></span>Loading live assets…</div>
+        <aside class="map-stats" aria-label="Live COW asset totals" aria-live="polite">
+          <div class="map-stat total"><span>Total COWs</span><strong id="stat-total">—</strong></div>
+          <div class="map-stat on-air"><span>Total ON-AIR</span><strong id="stat-on-air">—</strong></div>
+          <div class="map-stat off-air"><span>Total OFF-AIR</span><strong id="stat-off-air">—</strong><small>Missing, faulty, burnt &amp; others</small></div>
+          <div class="map-stat in-progress"><span>Total IN-PROGRESS</span><strong id="stat-in-progress">—</strong></div>
+          <section class="region-stats" aria-label="Sites by region">
+            <h2>Sites by region</h2>
+            <div><span>Central</span><strong id="stat-central">—</strong></div>
+            <div><span>East</span><strong id="stat-east">—</strong></div>
+            <div><span>South</span><strong id="stat-south">—</strong></div>
+            <div><span>West</span><strong id="stat-west">—</strong></div>
+          </section>
+        </aside>
         <div class="status-filter" aria-label="Filter sites by status">
           <button class="active" data-status-filter="all">All</button>
           <button data-status-filter="on-air"><i class="dot online"></i>ON-AIR</button>
@@ -56,6 +69,6 @@
 
   <script src="config.js?v=4"></script>
   <script src="auth.js?v=9"></script>
-  <script src="app.js?v=21"></script>
+  <script src="app.js?v=22"></script>
 </body>
 </html>
