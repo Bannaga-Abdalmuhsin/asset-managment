@@ -18,7 +18,7 @@ Source: [Cow-Risk-Dashboard_new](https://github.com/Bannaga-Abdalmuhsin/Cow-Risk
 | Rectifier margin, kW | rectifier capacity − telecom load − battery charge demand when charging |
 | Cooling margin, Btu/h | active AC net cooling − telecom heat dissipation |
 
-Power, rectifier and shelter cooling are flagged when their margin is **below zero**. Outdoor cabinets are exempt from cooling risk. At zero margin, the source engine labels the dimension safe.
+Power, rectifier and shelter cooling are flagged when their margin is **below zero**. Outdoor cabinets are exempt from cooling risk. At zero margin, the source engine labels the dimension safe. Dashboard risk-area cards count distinct assessed sites with a flag in any of S1–S4. Battery useful time remains visible in the site record, but S1–S4 have no battery outage-risk test; the dashboard marks Battery **N/A**.
 
 | Scenarios | Source | Cooling | Battery |
 | --- | --- | --- | --- |
