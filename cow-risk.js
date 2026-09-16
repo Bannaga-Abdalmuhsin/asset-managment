@@ -19,42 +19,91 @@ async function loadRiskAssets() {
   if (!Array.isArray(rows)) throw new Error('CMDB sites could not be loaded.');
   return rows.filter(row=>row.id).map(row=>({id:normalizeRiskId(row.id),region:row.region,status:row.status}));
 }
+const riskRegion = value => {
+  const name=String(value ?? '').trim().toLowerCase();
+  return ['central','east','south','west'].includes(name) ? name[0].toUpperCase()+name.slice(1) : 'Other';
+};
+const assessmentKind = site => !site.assessment ? 'pending' : site.assessment.overallRisk ? 'risk' : 'safe';
+function riskRow(site) {
+  const row=document.createElement('tr');
+  const id=document.createElement('td'),link=document.createElement('a');
+  link.href=`site.html?site=${encodeURIComponent(site.id)}#site-risk`;link.textContent=site.id;id.append(link);
+  const assessment=document.createElement('td'),pill=document.createElement('span');
+  const kind=assessmentKind(site);pill.className='risk-pill '+kind;
+  pill.textContent=kind==='risk'?'At risk':kind==='safe'?'Assessed safe':'Awaiting inputs';assessment.append(pill);
+  const region=document.createElement('td');region.textContent=riskRegion(site.region);
+  const status=document.createElement('td');status.textContent=site.status||'—';
+  const scenarios=document.createElement('td');
+  scenarios.textContent=site.assessment ? site.assessment.riskScenarios.length.toLocaleString() : '—';
+  const record=document.createElement('td'),open=document.createElement('a');
+  open.href=link.href;open.className='risk-open';open.textContent='View site ↗';record.append(open);
+  row.append(id,assessment,region,status,scenarios,record);
+  return row;
+}
 function renderRiskDirectory(assets, assessments) {
   const joined=assets.map(asset=>({...asset,assessment:assessments.get(asset.id)}));
   const assessed=joined.filter(site=>site.assessment);
+  const atRisk=assessed.filter(site=>site.assessment.overallRisk);
+  const safe=assessed.length-atRisk.length;
+  const waiting=joined.length-assessed.length;
   document.querySelector('#risk-total').textContent=joined.length.toLocaleString();
   document.querySelector('#risk-assessed').textContent=assessed.length.toLocaleString();
-  document.querySelector('#risk-count').textContent=assessed.filter(site=>site.assessment.overallRisk).length.toLocaleString();
-  document.querySelector('#risk-pending').textContent=(joined.length-assessed.length).toLocaleString();
-  const input=document.querySelector('#risk-search'),list=document.querySelector('#risk-list');
-  let filter='all';
-  function refresh(){
-    const query=normalizeRiskId(input.value);
-    const results=joined.filter(site=>site.id.includes(query)&&(
-      filter==='all'||filter==='pending'&&!site.assessment||
-      filter==='risk'&&site.assessment?.overallRisk||
-      filter==='safe'&&site.assessment&&!site.assessment.overallRisk
-    )).slice(0,150);
-    list.replaceChildren(...results.map(site=>{
-      const link=document.createElement('a');link.className='risk-site';link.href=`site.html?site=${encodeURIComponent(site.id)}#site-risk`;
-      const head=document.createElement('span');head.className='risk-site-head';
-      const id=document.createElement('strong');id.textContent=site.id;
-      const badge=document.createElement('span');badge.className='risk-pill '+(site.assessment?(site.assessment.overallRisk?'risk':'safe'):'');
-      badge.textContent=site.assessment?(site.assessment.overallRisk?'At risk':'Assessed safe'):'Awaiting inputs';
-      head.append(id,badge);
-      const detail=document.createElement('small');detail.textContent=site.assessment?.overallRisk
-        ? `${site.assessment.riskScenarios.length} flagged scenarios${site.assessment.override?' · field verified':''}`
-        : [site.region,site.status].filter(Boolean).join(' · ')||'CMDB site';
-      link.append(head,detail);return link;
-    }));
-    if(!results.length){const empty=document.createElement('p');empty.className='risk-empty';empty.textContent='No matching sites.';list.append(empty);}
+  document.querySelector('#risk-count').textContent=atRisk.length.toLocaleString();
+  document.querySelector('#risk-pending').textContent=waiting.toLocaleString();
+  document.querySelector('#risk-reviewed-count').textContent=assessed.length.toLocaleString();
+  document.querySelector('#risk-waiting-count').textContent=waiting.toLocaleString();
+  document.querySelector('#risk-safe-count').textContent=safe.toLocaleString();
+  const coverage=joined.length ? Math.round(assessed.length/joined.length*100) : 0;
+  document.querySelector('#risk-coverage').textContent=coverage+'% reviewed';
+  document.querySelector('#risk-coverage-fill').style.width=coverage+'%';
+  document.querySelector('.risk-coverage-bar').setAttribute('aria-label',`${assessed.length} of ${joined.length} COWs assessed`);
+  for(const area of ['power','cooling','battery','rectifier']) {
+    const count=atRisk.filter(site=>site.assessment.riskScenarios.some(scenario=>scenario.flags[area])).length;
+    document.querySelector(`#risk-${area}`).textContent=count.toLocaleString();
   }
-  input.addEventListener('input',refresh);
-  document.querySelectorAll('[data-risk-filter]').forEach(button=>button.addEventListener('click',()=>{
-    filter=button.dataset.riskFilter;
-    document.querySelectorAll('[data-risk-filter]').forEach(item=>item.classList.toggle('active',item===button));
-    refresh();
+  const sorted=joined.sort((a,b)=>{
+    const rank={risk:0,safe:1,pending:2};
+    return rank[assessmentKind(a)]-rank[assessmentKind(b)]||a.id.localeCompare(b.id);
+  });
+  const input=document.querySelector('#risk-search');
+  const select=document.querySelector('#risk-filter');
+  const region=document.querySelector('#risk-region');
+  const list=document.querySelector('#risk-list');
+  const more=document.querySelector('#risk-more');
+  const count=document.querySelector('#risk-directory-count');
+  const clear=document.querySelector('#risk-clear');
+  const cards=[...document.querySelectorAll('[data-risk-filter]')];
+  let shown=50;
+  const refresh=()=>{
+    const query=normalizeRiskId(input.value);
+    const filter=select.value;
+    const matching=sorted.filter(site=>site.id.includes(query) &&
+      (filter==='all'||filter==='assessed'&&site.assessment||filter===assessmentKind(site)) &&
+      (region.value==='all'||riskRegion(site.region)===region.value));
+    const visible=matching.slice(0,shown);
+    list.replaceChildren(...visible.map(riskRow));
+    if(!matching.length){
+      const row=document.createElement('tr'),cell=document.createElement('td');
+      cell.colSpan=6;cell.className='directory-empty';cell.textContent='No matching COWs found.';
+      row.append(cell);list.append(row);
+    }
+    count.textContent=`Showing ${visible.length.toLocaleString()} of ${matching.length.toLocaleString()} sites`;
+    more.hidden=shown>=matching.length;
+    clear.hidden=filter==='all'&&region.value==='all'&&!query;
+    cards.forEach(card=>{
+      const active=card.dataset.riskFilter===filter;
+      card.classList.toggle('active',active);card.setAttribute('aria-pressed',String(active));
+    });
+  };
+  cards.forEach(card=>card.addEventListener('click',()=>{
+    select.value=card.dataset.riskFilter;shown=50;refresh();
+    document.querySelector('#risk-directory').scrollIntoView({behavior:'smooth',block:'start'});
   }));
+  input.addEventListener('input',()=>{shown=50;refresh();});
+  select.addEventListener('change',()=>{shown=50;refresh();});
+  region.addEventListener('change',()=>{shown=50;refresh();});
+  more.addEventListener('click',()=>{shown+=50;refresh();});
+  clear.addEventListener('click',()=>{input.value='';select.value='all';region.value='all';shown=50;refresh();});
   refresh();document.querySelector('#risk-state').hidden=true;document.querySelector('#risk-data').hidden=false;
 }
 window.assetAuthReady().then(async()=>{
