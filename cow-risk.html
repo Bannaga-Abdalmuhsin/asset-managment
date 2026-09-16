@@ -7,7 +7,7 @@
   <meta name="robots" content="noindex,nofollow,noarchive" />
   <meta name="referrer" content="no-referrer" />
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://*.supabase.co; connect-src 'self' https://*.supabase.co; object-src 'none'; base-uri 'self'; form-action 'self'; frame-src 'none'" />
-  <title>COW Risk · stc COW Asset Management</title>
+  <title>COWs Risk Flags · stc COW Asset Management</title>
   <link rel="stylesheet" href="styles.css?v=18" />
   <link rel="stylesheet" href="dashboard.css?v=2" />
   <link rel="stylesheet" href="risk.css?v=1" />
@@ -25,11 +25,11 @@
     </div>
   </header>
   <div class="dashboard-layout">
-    <nav class="asset-menu dashboard-menu" aria-label="stc COW National Asset Status">
-      <a class="menu-title" href="index.html">stc COW National Asset Status</a>
+    <nav class="asset-menu dashboard-menu" aria-label="National Asset Status">
+      <a class="menu-title" href="index.html">National Asset Status</a>
       <span class="menu-caption">WORKSPACE</span>
       <a href="asset-details.html">Asset details</a>
-      <a href="cow-risk.html" aria-current="page">COW Risk</a>
+      <a href="cow-risk.html" aria-current="page">COWs Risk Flags</a>
       <span class="menu-caption">OPERATIONS</span>
       <a href="status.html?view=capex">CAPEX status</a>
       <a href="status.html?view=opex">OPEX status</a>
@@ -37,7 +37,7 @@
       <a class="menu-settings" href="account.html">Settings</a>
     </nav>
     <main class="dashboard-content">
-      <div class="dashboard-heading"><p>ENGINEERING ASSESSMENT</p><h1>COW Risk</h1><span>Surveyed sites matched to the national CMDB by COW ID. Only flagged scenarios are shown.</span></div>
+      <div class="dashboard-heading"><p>ENGINEERING ASSESSMENT</p><h1>COWs Risk Flags</h1></div>
       <p id="risk-state" class="dashboard-state" role="status">Loading COW risk assessments…</p>
       <div id="risk-data" hidden>
         <section class="risk-totals" aria-label="Assessment totals">
@@ -47,7 +47,7 @@
           <article><span>Awaiting inputs</span><strong id="risk-pending">—</strong></article>
         </section>
         <section class="dashboard-section">
-          <div class="directory-head"><div><h2>Site scenarios</h2><p>Assessment snapshot from the COW Risk Dashboard. Select a site to inspect its matching scenarios.</p></div><label>Search COW ID<input id="risk-search" type="search" placeholder="Search site ID" autocomplete="off" /></label></div>
+          <div class="directory-head"><div><h2>Site scenarios</h2></div><label>Search COW ID<input id="risk-search" type="search" placeholder="Search site ID" autocomplete="off" /></label></div>
           <div class="risk-filters" aria-label="Risk filters"><button type="button" data-risk-filter="all" class="active">All sites</button><button type="button" data-risk-filter="risk">At risk</button><button type="button" data-risk-filter="safe">Assessed safe</button><button type="button" data-risk-filter="pending">Awaiting inputs</button></div>
           <div id="risk-list" class="risk-list"></div>
         </section>
