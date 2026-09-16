@@ -14,7 +14,10 @@ const ASSET_CACHE_TTL = 2 * 60 * 1000;
 
 const $ = (selector) => document.querySelector(selector);
 const normalize = value => String(value ?? '').replace(/\s+/g, ' ').trim();
-const isOnAir = status => normalize(status).toUpperCase() === 'ON-AIR';
+const normalizedStatus = status => normalize(status).toUpperCase().replace(/[\s_]+/g,'-');
+const isOnAir = status => ['ON-AIR','ONAIR'].includes(normalizedStatus(status));
+const isInProgress = status => ['IN-PROGRESS','INPROGRESS'].includes(normalizedStatus(status));
+const isOffAir = status => !isOnAir(status) && !isInProgress(status);
 const regionName = region => {
   const value = normalize(region).toLowerCase();
   if (value === 'east') return 'East';
@@ -59,7 +62,21 @@ async function loadAssets() {
 
 function applyAssetData() {
   $('#loading').hidden = true;
+  renderAssetStats();
   drawMarkers();
+}
+
+function renderAssetStats() {
+  const regionTotals={Central:0,East:0,South:0,West:0};
+  let onAir=0,inProgress=0,offAir=0;
+  assets.forEach(asset=>{
+    if(isOnAir(asset.status))onAir++;
+    else if(isInProgress(asset.status))inProgress++;
+    else offAir++;
+    if(regionTotals[asset.region]!==undefined)regionTotals[asset.region]++;
+  });
+  const totals={total:assets.length,'on-air':onAir,'off-air':offAir,'in-progress':inProgress,central:regionTotals.Central,east:regionTotals.East,south:regionTotals.South,west:regionTotals.West};
+  Object.entries(totals).forEach(([key,value])=>{const element=$(`#stat-${key}`);if(element)element.textContent=value.toLocaleString();});
 }
 
 function loadGoogleMaps() {
@@ -95,7 +112,7 @@ function renderMap() {
 function drawMarkers() {
   if (!map) return;
   if (siteMarkers.length) {
-    siteMarkers.forEach(marker => marker.setVisible(activeStatusFilter === 'all' || (activeStatusFilter === 'on-air' ? isOnAir(marker.__asset.status) : !isOnAir(marker.__asset.status))));
+    siteMarkers.forEach(marker => marker.setVisible(activeStatusFilter === 'all' || (activeStatusFilter === 'on-air' ? isOnAir(marker.__asset.status) : isOffAir(marker.__asset.status))));
     return;
   }
   markerById.clear();
