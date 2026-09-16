@@ -9,8 +9,8 @@
   <meta name="referrer" content="no-referrer" />
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: https://*.supabase.co; connect-src 'self' https://*.supabase.co; object-src 'none'; base-uri 'self'; form-action 'self'; frame-src 'none'; upgrade-insecure-requests" />
   <title>Asset Record · stc COW Asset Management</title>
-  <link rel="stylesheet" href="styles.css?v=14" />
-  <link rel="stylesheet" href="site.css?v=10" />
+  <link rel="stylesheet" href="styles.css?v=18" />
+  <link rel="stylesheet" href="site.css?v=11" />
 </head>
 <body class="record-body">
   <header class="topbar record-topbar">
@@ -27,6 +27,18 @@
       </div>
     </div>
   </header>
+  <div class="portal-layout">
+  <nav class="asset-menu portal-menu" aria-label="stc COW National Asset Status">
+    <a class="menu-title" href="index.html">stc COW National Asset Status</a>
+    <span class="menu-caption">WORKSPACE</span>
+    <a href="asset-details.html" aria-current="page">Asset details</a>
+    <a href="status.html?view=summary">Asset summary</a>
+    <span class="menu-caption">OPERATIONS</span>
+    <a href="status.html?view=capex">CAPEX status</a>
+    <a href="status.html?view=opex">OPEX status</a>
+    <a href="status.html?view=fuel">Fuel status</a>
+    <a class="menu-settings" href="account.html">Settings</a>
+  </nav>
   <main class="record-shell">
     <div id="record-loading" class="record-state"><span class="spinner"></span>Loading authorized asset record…</div>
     <div id="record-error" class="record-state error" hidden></div>
@@ -39,6 +51,7 @@
       <div id="categories" class="category-list"></div>
     </article>
   </main>
+  </div>
   <script src="config.js?v=4"></script>
   <script src="auth.js?v=9"></script>
   <script src="site.js?v=11"></script>
