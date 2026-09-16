@@ -181,6 +181,8 @@ document.addEventListener('keydown', event => {
   if (event.key === '/' && document.activeElement !== $('#site-search')) { event.preventDefault(); $('#site-search').focus(); }
 });
 document.addEventListener('click', event => { if (!event.target.closest('.search-wrap')) $('#suggestions').hidden = true; });
+document.querySelector('[data-menu-action="details"]')?.addEventListener('click', () => $('#site-search').focus());
+document.querySelector('[data-menu-action="summary"]')?.addEventListener('click', () => $('.map-stats').scrollTo({ top: 0, behavior: 'smooth' }));
 document.querySelectorAll('[data-status-filter]').forEach(button => button.addEventListener('click', () => {
   activeStatusFilter = button.dataset.statusFilter;
   document.querySelectorAll('[data-status-filter]').forEach(item => item.classList.toggle('active', item === button));
