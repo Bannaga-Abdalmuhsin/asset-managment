@@ -9,7 +9,7 @@
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: https://*.supabase.co; connect-src 'self' https://*.supabase.co; object-src 'none'; base-uri 'self'; form-action 'self'; frame-src 'none'" />
   <title>Asset details · stc COW Asset Management</title>
   <link rel="stylesheet" href="styles.css?v=18" />
-  <link rel="stylesheet" href="dashboard.css?v=3" />
+  <link rel="stylesheet" href="dashboard.css?v=4" />
 </head>
 <body class="dashboard-body" data-dashboard-page="details">
   <header class="topbar dashboard-topbar">
@@ -39,13 +39,28 @@
       <div class="dashboard-heading"><p>NATIONAL ASSET VIEW</p><h1>Asset details</h1></div>
       <p id="dashboard-state" class="dashboard-state" role="status">Loading asset details…</p>
       <div id="dashboard-data" hidden>
-        <section class="dashboard-counts" aria-label="Site status totals">
-          <article class="count-tile"><span>Total COWs</span><strong id="stat-total">—</strong></article>
-          <article class="count-tile on-air"><span>Total ON-AIR</span><strong id="stat-on-air">—</strong></article>
-          <article class="count-tile off-air"><span>Total OFF-AIR</span><strong id="stat-off-air">—</strong><small>Missing, faulty, burnt &amp; other statuses</small></article>
-          <article class="count-tile in-progress"><span>Total IN-PROGRESS</span><strong id="stat-in-progress">—</strong></article>
+        <section class="dashboard-counts" aria-label="Filter sites by status">
+          <button class="count-tile active" type="button" data-asset-filter="all" aria-pressed="true"><span>Total COWs</span><strong id="stat-total">—</strong><small>All asset records</small></button>
+          <button class="count-tile on-air" type="button" data-asset-filter="on-air" aria-pressed="false"><span>ON-AIR</span><strong id="stat-on-air">—</strong><small>In service</small></button>
+          <button class="count-tile off-air" type="button" data-asset-filter="off-air" aria-pressed="false"><span>OFF-AIR</span><strong id="stat-off-air">—</strong><small>Including missing, faulty and burnt</small></button>
+          <button class="count-tile in-progress" type="button" data-asset-filter="in-progress" aria-pressed="false"><span>IN-PROGRESS</span><strong id="stat-in-progress">—</strong><small>Being prepared</small></button>
         </section>
-        <section class="dashboard-section"><h2>Sites by region</h2>
+        <section class="dashboard-section inventory-section" aria-labelledby="inventory-title">
+          <div class="inventory-heading">
+            <div><p class="section-eyebrow">OFF-AIR DISTRIBUTION</p><h2 id="inventory-title">Where are the off-air COWs?</h2></div>
+            <strong id="inventory-total">— <span>total off-air</span></strong>
+          </div>
+          <div class="inventory-bar" role="img" aria-label="Off-air distribution between listed warehouse locations and sites">
+            <div id="inventory-warehouse-bar" class="inventory-bar-warehouse"></div>
+            <div id="inventory-outside-bar" class="inventory-bar-outside"></div>
+          </div>
+          <div class="inventory-legend">
+            <a href="#warehouse-title"><span class="legend-dot warehouse-dot"></span><span>Near warehouses</span><strong id="warehouse-total">—</strong></a>
+            <a href="#outside-title"><span class="legend-dot outside-dot"></span><span>Still on sites</span><strong id="outside-total">—</strong></a>
+          </div>
+        </section>
+        <section class="dashboard-section region-section" aria-label="Sites by region">
+          <h2>Sites by region</h2>
           <div class="region-counts">
             <article><span>Central</span><strong id="stat-central">—</strong></article>
             <article><span>East</span><strong id="stat-east">—</strong></article>
@@ -54,14 +69,22 @@
           </div>
         </section>
         <section class="dashboard-section warehouse-section" aria-labelledby="warehouse-title">
-          <div class="warehouse-header"><div><p class="section-eyebrow">OFF-AIR INVENTORY</p><h2 id="warehouse-title">Warehouse locations</h2></div><div class="warehouse-totals"><span><strong id="warehouse-total">—</strong> Near warehouses</span><span><strong id="outside-total">—</strong> Still on sites</span></div></div>
+          <div class="warehouse-header"><div><p class="section-eyebrow">LOCATION MATCHES</p><h2 id="warehouse-title">Warehouse locations</h2></div></div>
           <div id="warehouse-grid" class="warehouse-grid"></div>
-          <div class="outside-warehouse"><div class="outside-warehouse-head"><div><h3>Off-air and still on sites</h3></div><strong id="outside-count">—</strong></div><div id="outside-sites" class="warehouse-site-list"></div></div>
+          <details class="outside-warehouse" id="outside-title">
+            <summary><span>Off-air and still on sites</span><strong id="outside-count">—</strong><span class="outside-chevron" aria-hidden="true">⌄</span></summary>
+            <div id="outside-sites" class="warehouse-site-list"></div>
+          </details>
         </section>
-        <section class="dashboard-section"><div class="directory-head"><div><h2>Site records</h2><p>Select a COW to view its full asset record.</p></div><label>Search site ID<input id="directory-search" type="search" placeholder="Search site ID" autocomplete="off" /></label></div><div id="directory-results" class="directory-results"></div></section>
+        <section class="dashboard-section directory-section" id="site-directory" aria-labelledby="directory-title">
+          <div class="directory-head"><div><p class="section-eyebrow">DIRECTORY</p><h2 id="directory-title">Site records</h2><p>Open a COW to view its asset record.</p></div><div class="directory-controls"><label>Search COW ID<input id="directory-search" type="search" placeholder="Enter a COW ID" autocomplete="off" /></label><label>Region<select id="directory-region"><option value="all">All regions</option><option value="Central">Central</option><option value="East">East</option><option value="South">South</option><option value="West">West</option><option value="Other">Other</option></select></label></div></div>
+          <div class="directory-meta"><span id="directory-count" role="status">—</span><button id="directory-clear" type="button" hidden>Clear filters</button></div>
+          <div class="directory-table-wrap"><table class="directory-table"><thead><tr><th scope="col">COW ID</th><th scope="col">Status</th><th scope="col">Region</th><th scope="col">City / District</th><th scope="col">Location</th><th scope="col">Map</th></tr></thead><tbody id="directory-results"></tbody></table></div>
+          <button id="directory-more" class="directory-more" type="button" hidden>Show more sites</button>
+        </section>
       </div>
     </main>
   </div>
-  <script src="config.js?v=4"></script><script src="auth.js?v=9"></script><script src="dashboard.js?v=2"></script>
+  <script src="config.js?v=4"></script><script src="auth.js?v=9"></script><script src="dashboard.js?v=3"></script>
 </body>
 </html>
