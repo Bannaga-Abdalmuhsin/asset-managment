@@ -9,7 +9,7 @@
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: https://*.supabase.co; connect-src 'self' https://*.supabase.co; object-src 'none'; base-uri 'self'; form-action 'self'; frame-src 'none'" />
   <title>Asset details · stc COW Asset Management</title>
   <link rel="stylesheet" href="styles.css?v=18" />
-  <link rel="stylesheet" href="dashboard.css?v=2" />
+  <link rel="stylesheet" href="dashboard.css?v=3" />
 </head>
 <body class="dashboard-body" data-dashboard-page="details">
   <header class="topbar dashboard-topbar">
@@ -53,10 +53,15 @@
             <article><span>West</span><strong id="stat-west">—</strong></article>
           </div>
         </section>
+        <section class="dashboard-section warehouse-section" aria-labelledby="warehouse-title">
+          <div class="warehouse-header"><div><p class="section-eyebrow">OFF-AIR INVENTORY</p><h2 id="warehouse-title">Warehouse locations</h2><p>Off-air COWs within 1 km of the listed coordinates. Confirm physical inventory with warehouse records.</p></div><div class="warehouse-totals"><span><strong id="warehouse-total">—</strong> Near warehouses</span><span><strong id="outside-total">—</strong> Still on sites</span></div></div>
+          <div id="warehouse-grid" class="warehouse-grid"></div>
+          <div class="outside-warehouse"><div class="outside-warehouse-head"><div><h3>Off-air and still on sites</h3><p>Off-air COWs outside the listed warehouse locations, including records without coordinates.</p></div><strong id="outside-count">—</strong></div><div id="outside-sites" class="warehouse-site-list"></div></div>
+        </section>
         <section class="dashboard-section"><div class="directory-head"><div><h2>Site records</h2><p>Select a COW to view its full asset record.</p></div><label>Search site ID<input id="directory-search" type="search" placeholder="Search site ID" autocomplete="off" /></label></div><div id="directory-results" class="directory-results"></div></section>
       </div>
     </main>
   </div>
-  <script src="config.js?v=4"></script><script src="auth.js?v=9"></script><script src="dashboard.js?v=1"></script>
+  <script src="config.js?v=4"></script><script src="auth.js?v=9"></script><script src="dashboard.js?v=2"></script>
 </body>
 </html>
