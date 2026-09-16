@@ -62,21 +62,7 @@ async function loadAssets() {
 
 function applyAssetData() {
   $('#loading').hidden = true;
-  renderAssetStats();
   drawMarkers();
-}
-
-function renderAssetStats() {
-  const regionTotals={Central:0,East:0,South:0,West:0};
-  let onAir=0,inProgress=0,offAir=0;
-  assets.forEach(asset=>{
-    if(isOnAir(asset.status))onAir++;
-    else if(isInProgress(asset.status))inProgress++;
-    else offAir++;
-    if(regionTotals[asset.region]!==undefined)regionTotals[asset.region]++;
-  });
-  const totals={total:assets.length,'on-air':onAir,'off-air':offAir,'in-progress':inProgress,central:regionTotals.Central,east:regionTotals.East,south:regionTotals.South,west:regionTotals.West};
-  Object.entries(totals).forEach(([key,value])=>{const element=$(`#stat-${key}`);if(element)element.textContent=value.toLocaleString();});
 }
 
 function loadGoogleMaps() {
@@ -181,8 +167,6 @@ document.addEventListener('keydown', event => {
   if (event.key === '/' && document.activeElement !== $('#site-search')) { event.preventDefault(); $('#site-search').focus(); }
 });
 document.addEventListener('click', event => { if (!event.target.closest('.search-wrap')) $('#suggestions').hidden = true; });
-document.querySelector('[data-menu-action="details"]')?.addEventListener('click', () => $('#site-search').focus());
-document.querySelector('[data-menu-action="summary"]')?.addEventListener('click', () => $('.map-stats').scrollTo({ top: 0, behavior: 'smooth' }));
 document.querySelectorAll('[data-status-filter]').forEach(button => button.addEventListener('click', () => {
   activeStatusFilter = button.dataset.statusFilter;
   document.querySelectorAll('[data-status-filter]').forEach(item => item.classList.toggle('active', item === button));
