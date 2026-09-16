@@ -98,3 +98,8 @@
 @media(max-width:1100px) { #site-risk .risk-asset-grid { grid-template-columns:repeat(3,minmax(0,1fr)); } #site-risk .risk-site-inputs .risk-detail-grid { grid-template-columns:repeat(3,minmax(0,1fr)); } }
 @media(max-width:750px) { #site-risk .risk-margin-list { grid-template-columns:repeat(2,minmax(0,1fr)); } #site-risk .risk-inputs .risk-detail-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } }
 @media(max-width:540px) { #site-risk.risk-panel { padding:12px; } #site-risk .risk-asset-grid,#site-risk .risk-site-inputs .risk-detail-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } #site-risk .risk-metrics { grid-template-columns:1fr; } #site-risk .risk-scenario-detail { padding:11px; } }
+
+/* S1–S4 do not evaluate battery autonomy as a risk flag. */
+.risk-dashboard .risk-area-grid article.unassessed { display:grid; grid-template-columns:1fr auto; gap:3px 10px; background:#f8f7fa; border-color:#e8e4ec; }
+.risk-dashboard .risk-area-grid article.unassessed strong { color:#81788a; font-size:.95rem; }
+.risk-dashboard .risk-area-grid article.unassessed small { grid-column:1/-1; color:#81788a; font-size:.66rem; line-height:1.25; }
