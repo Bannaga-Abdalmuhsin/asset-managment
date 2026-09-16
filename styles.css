@@ -114,6 +114,13 @@ button, input { font: inherit; }
 .region-stats div { display:flex; justify-content:space-between; align-items:center; gap:6px; padding:7px 8px; border:1px solid rgba(79,0,140,.10); border-radius:8px; background:rgba(255,255,255,.58); }
 .region-stats span { color:#65596d; font-size:.59rem; font-weight:750; }
 .region-stats strong { color:#321141; font-size:.78rem; }
+.asset-menu { display:grid; gap:4px; padding:12px; border:1px solid rgba(255,255,255,.6); border-radius:14px; background:rgba(255,255,255,.82); color:#26172f; box-shadow:0 12px 30px rgba(40,18,55,.16); backdrop-filter:blur(13px) saturate(135%); pointer-events:auto; }
+.asset-menu h2 { margin:0 0 6px; padding:0 2px 9px; border-bottom:1px solid #e8ddec; color:#4f008c; font-size:.77rem; line-height:1.35; font-weight:850; }
+.asset-menu button,.asset-menu a { display:flex; justify-content:space-between; align-items:center; min-height:34px; width:100%; padding:7px 9px; border:0; border-radius:8px; background:transparent; color:#392345; text-align:left; text-decoration:none; font-size:.74rem; font-weight:720; cursor:pointer; }
+.asset-menu button:not(:disabled):hover,.asset-menu a:hover,.asset-menu button.active { background:#f1e8f8; color:#4f008c; }
+.asset-menu button:focus-visible,.asset-menu a:focus-visible { outline:2px solid #4f008c; outline-offset:2px; }
+.asset-menu button:disabled { color:#756d7b; cursor:default; }
+.asset-menu small { font-size:.57rem; font-weight:650; color:#83778b; }
 .spinner { width: 17px; height: 17px; border: 2px solid rgba(255,255,255,.15); border-top-color: #fff; border-radius: 50%; animation: spin .8s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
@@ -163,5 +170,5 @@ button, input { font: inherit; }
   .map-heading { flex-direction: column; gap: 12px; }
   .legend { align-self: flex-start; }
   .details-panel { padding: 26px 20px; }
-  .map-stats { width:168px;max-height:calc(100vh - 160px);overflow:auto;scrollbar-width:none; }.map-stats::-webkit-scrollbar{display:none}.region-stats{grid-template-columns:1fr}.region-stats h2{grid-column:1}
+  .map-stats { width:168px;max-height:calc(100vh - 160px);overflow:auto;scrollbar-width:thin;pointer-events:auto; }.region-stats{grid-template-columns:1fr}.region-stats h2{grid-column:1}
 }
