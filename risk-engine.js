@@ -31,24 +31,21 @@
     const hours = raw.batteriesMaxUsefulTimeHours;
     const scenarios = definitions.map(([name,source,cooling,charging],i) => {
       const number = i + 1;
-      const outage = number === 9;
-      const available = outage ? 0 : source === 'prime' ? prime : backup;
-      let powerMargin = outage ? -telecom : available - ac1Kw - telecom;
-      if ([2,4,6,8].includes(number)) powerMargin -= ac2Kw;
+      const available = prime;
+      let powerMargin = available - ac1Kw - telecom;
+      if ([2,4].includes(number)) powerMargin -= ac2Kw;
       if (charging) powerMargin -= chargingKw;
-      const rectifierMargin = outage ? -telecom : raw.rectifierCapacityKw - telecom - (charging ? chargingKw : 0);
-      const coolingMargin = outage ? -heat : (cooling === 'ac1' ? ac1 : ac1 + ac2) - heat;
+      const rectifierMargin = raw.rectifierCapacityKw - telecom - (charging ? chargingKw : 0);
+      const coolingMargin = (cooling === 'ac1' ? ac1 : ac1 + ac2) - heat;
       const flags = {
-        power: outage || powerMargin < 0,
-        rectifier: outage || rectifierMargin < 0,
-        cooling: outage || (raw.shelterType.toLowerCase() !== 'outdoor' && coolingMargin < 0),
-        battery: outage && hours < 1
+        power: powerMargin < 0,
+        rectifier: rectifierMargin < 0,
+        cooling: raw.shelterType.toLowerCase() !== 'outdoor' && coolingMargin < 0,
+        battery: false
       };
-      // S9 power/cooling are displayed as unavailable by the source engine;
-      // its battery duration is the actionable outage risk.
-      const actionable = outage ? flags.battery : Object.values(flags).some(Boolean);
+      const actionable = Object.values(flags).some(Boolean);
       return { id:number, name, powerSource:source, coolingConfig:cooling,
-        batteryState:outage?'discharging':charging?'charging':'normal',
+        batteryState:charging?'charging':'normal',
         flags, actionable,
         powerMarginKw:powerMargin, rectifierMarginKw:rectifierMargin,
         coolingMarginBtu:coolingMargin, batteryUsefulHours:hours,
@@ -57,7 +54,7 @@
         ac1NetBtu:ac1, ac2NetBtu:ac2, ac1NetPowerKw:ac1Kw,
         ac2NetPowerKw:ac2Kw, rectifierNetKw:raw.rectifierCapacityKw,
         batteryChargingKw:chargingKw,
-        riskScore:Number(flags.power)+Number(flags.rectifier)+Number(flags.battery)+(outage?0:Number(flags.cooling)) };
+        riskScore:Number(flags.power)+Number(flags.rectifier)+Number(flags.cooling) };
     });
     const override = FIELD_RISK.has(id) ? 'Confirmed field risk' : FIELD_SAFE.has(id) ? 'Confirmed field safe' : null;
     // The source data marks exactly 19 field-confirmed sites at risk and
