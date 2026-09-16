@@ -73,62 +73,131 @@ function siteLink(asset) {
   link.textContent=asset.id;
   return link;
 }
-function renderWarehouses(records) {
+const siteStatus = asset => onAir(asset.status) ? 'on-air' : inProgress(asset.status) ? 'in-progress' : 'off-air';
+function warehouseGroups(records) {
   const groups=new Map(WAREHOUSES.map(warehouse=>[warehouse.name,[]]));
   const outside=[];
   for(const asset of records) {
-    if(!isOffAir(asset.status)) continue;
-    const warehouse=warehouseMatch(asset);
-    if(warehouse)groups.get(warehouse.name).push(asset);
+    asset.warehouse=isOffAir(asset.status) ? warehouseMatch(asset) : null;
+    if(!isOffAir(asset.status))continue;
+    if(asset.warehouse)groups.get(asset.warehouse.name).push(asset);
     else outside.push(asset);
   }
+  return {groups,outside};
+}
+function renderWarehouses(records) {
+  const {groups,outside}=warehouseGroups(records);
   const warehouseCount=[...groups.values()].reduce((sum,sites)=>sum+sites.length,0);
+  const offAirCount=warehouseCount+outside.length;
   document.querySelector('#warehouse-total').textContent=warehouseCount.toLocaleString();
   document.querySelector('#outside-total').textContent=outside.length.toLocaleString();
   document.querySelector('#outside-count').textContent=outside.length.toLocaleString();
+  document.querySelector('#inventory-total').firstChild.textContent=offAirCount.toLocaleString()+' ';
+  document.querySelector('#inventory-warehouse-bar').style.width=offAirCount ? `${warehouseCount/offAirCount*100}%` : '0%';
+  document.querySelector('#inventory-outside-bar').style.width=offAirCount ? `${outside.length/offAirCount*100}%` : '0%';
+  document.querySelector('.inventory-bar').setAttribute('aria-label',`${warehouseCount} off-air COWs near warehouses; ${outside.length} still on sites`);
   const grid=document.querySelector('#warehouse-grid');
   grid.replaceChildren(...WAREHOUSES.map(warehouse=>{
     const sites=groups.get(warehouse.name).sort((a,b)=>a.id.localeCompare(b.id));
-    const card=document.createElement('article');card.className='warehouse-card';
+    const card=document.createElement('article');card.className='warehouse-card'+(sites.length?'':' empty');
     const head=document.createElement('div');head.className='warehouse-card-head';
     const name=document.createElement('h3');name.textContent=warehouse.name;
     const count=document.createElement('strong');count.textContent=sites.length.toLocaleString();
     head.append(name,count);
     const coords=document.createElement('a');coords.className='warehouse-coordinates';
     coords.href=`https://www.google.com/maps?q=${warehouse.lat},${warehouse.lon}`;
-    coords.target='_blank';coords.rel='noopener noreferrer';coords.textContent='View warehouse location ↗';
-    const list=document.createElement('div');list.className='warehouse-site-list';
-    if(sites.length)list.append(...sites.map(siteLink));
-    else {const empty=document.createElement('span');empty.className='warehouse-empty';empty.textContent='No off-air COWs nearby';list.append(empty);}
-    card.append(head,coords,list);
+    coords.target='_blank';coords.rel='noopener noreferrer';coords.textContent='View location ↗';
+    card.append(head,coords);
+    if(sites.length){
+      const details=document.createElement('details');details.className='warehouse-details';
+      const summary=document.createElement('summary');summary.textContent=`View ${sites.length} COW${sites.length===1?'':'s'}`;
+      const list=document.createElement('div');list.className='warehouse-site-list';list.append(...sites.map(siteLink));
+      details.append(summary,list);card.append(details);
+    }else{
+      const empty=document.createElement('span');empty.className='warehouse-empty';empty.textContent='No off-air COWs nearby';card.append(empty);
+    }
     return card;
   }));
   const outsideList=document.querySelector('#outside-sites');
   outsideList.replaceChildren(...outside.sort((a,b)=>a.id.localeCompare(b.id)).map(siteLink));
-  if(!outside.length){const empty=document.createElement('span');empty.className='warehouse-empty';empty.textContent='No off-air COWs outside listed warehouses';outsideList.append(empty);}
-}
-
-function renderDashboard(records) {
-  const counts = {total:records.length,'on-air':0,'off-air':0,'in-progress':0,central:0,east:0,south:0,west:0};
-  for (const asset of records) {
-    if (onAir(asset.status)) counts['on-air']++;
-    else if (inProgress(asset.status)) counts['in-progress']++;
-    else counts['off-air']++;
-    const region = regionOf(asset.region).toLowerCase();
-    if (Object.hasOwn(counts,region)) counts[region]++;
+  if(!outside.length){
+    const empty=document.createElement('span');empty.className='warehouse-empty';
+    empty.textContent='No off-air COWs outside listed warehouses';outsideList.append(empty);
   }
-  for (const [name,count] of Object.entries(counts)) document.querySelector(`#stat-${name}`).textContent = count.toLocaleString();
+}
+function makeDirectoryRow(asset) {
+  const row=document.createElement('tr');
+  const id=document.createElement('td');id.append(siteLink(asset));
+  const status=document.createElement('td');
+  const pill=document.createElement('span');pill.className=`directory-status ${siteStatus(asset)}`;
+  pill.textContent=asset.status||'Not recorded';status.append(pill);
+  const region=document.createElement('td');region.textContent=asset.region;
+  const location=document.createElement('td');
+  const area=[clean(asset.City),clean(asset.District)].filter((value,index,all)=>value && all.indexOf(value)===index);
+  location.textContent=area.join(' · ')||'—';
+  const storage=document.createElement('td');
+  if(siteStatus(asset)==='off-air'){
+    const tag=document.createElement('span');tag.className='directory-location '+(asset.warehouse?'warehouse':'onsite');
+    tag.textContent=asset.warehouse?asset.warehouse.name:'Still on sites';storage.append(tag);
+  }else storage.textContent='—';
+  const mapCell=document.createElement('td');
+  if(Number.isFinite(asset.lat)&&Number.isFinite(asset.lon)&&asset.lat&&asset.lon){
+    const map=document.createElement('a');map.href=`https://www.google.com/maps?q=${asset.lat},${asset.lon}`;
+    map.target='_blank';map.rel='noopener noreferrer';map.className='directory-map';map.textContent='Open map ↗';
+    mapCell.append(map);
+  }else mapCell.textContent='—';
+  row.append(id,status,region,location,storage,mapCell);
+  return row;
+}
+function renderDashboard(records) {
+  const counts={total:records.length,'on-air':0,'off-air':0,'in-progress':0,central:0,east:0,south:0,west:0};
+  for(const asset of records){
+    counts[siteStatus(asset)]++;
+    const region=regionOf(asset.region).toLowerCase();
+    if(Object.hasOwn(counts,region))counts[region]++;
+  }
+  for(const [name,count] of Object.entries(counts))
+    document.querySelector(`#stat-${name}`).textContent=count.toLocaleString();
   renderWarehouses(records);
-  const list = document.querySelector('#directory-results');
-  const input = document.querySelector('#directory-search');
-  const refresh = () => {
-    const matching = records.filter(asset=>asset.id.toUpperCase().includes(input.value.trim().toUpperCase())).slice(0,100);
-    list.replaceChildren(...matching.map(asset=>{
-      const link=document.createElement('a');link.href=`site.html?site=${encodeURIComponent(asset.id)}`;link.textContent=asset.id;return link;
-    }));
-    if (!matching.length) { const empty=document.createElement('p');empty.textContent='No matching sites found.';list.append(empty); }
+  const input=document.querySelector('#directory-search');
+  const region=document.querySelector('#directory-region');
+  const tbody=document.querySelector('#directory-results');
+  const more=document.querySelector('#directory-more');
+  const clear=document.querySelector('#directory-clear');
+  const count=document.querySelector('#directory-count');
+  const buttons=[...document.querySelectorAll('[data-asset-filter]')];
+  let selected='all',shown=50;
+  const refresh=()=>{
+    const query=input.value.trim().toUpperCase();
+    const matching=records.filter(asset=>
+      (selected==='all'||siteStatus(asset)===selected) &&
+      (region.value==='all'||asset.region===region.value) &&
+      asset.id.toUpperCase().includes(query));
+    const visible=matching.slice(0,shown);
+    tbody.replaceChildren(...visible.map(makeDirectoryRow));
+    if(!matching.length){
+      const tr=document.createElement('tr'),td=document.createElement('td');
+      td.colSpan=6;td.className='directory-empty';td.textContent='No matching COWs found.';
+      tr.append(td);tbody.append(tr);
+    }
+    count.textContent=`Showing ${visible.length.toLocaleString()} of ${matching.length.toLocaleString()} sites`;
+    more.hidden=shown>=matching.length;
+    clear.hidden=selected==='all'&&region.value==='all'&&!query;
   };
-  input.addEventListener('input',refresh);
+  buttons.forEach(button=>button.addEventListener('click',()=>{
+    selected=button.dataset.assetFilter;shown=50;
+    buttons.forEach(item=>{const active=item===button;item.classList.toggle('active',active);item.setAttribute('aria-pressed',String(active));});
+    refresh();
+    document.querySelector('#site-directory').scrollIntoView({behavior:'smooth',block:'start'});
+  }));
+  input.addEventListener('input',()=>{shown=50;refresh();});
+  region.addEventListener('change',()=>{shown=50;refresh();});
+  more.addEventListener('click',()=>{shown+=50;refresh();});
+  clear.addEventListener('click',()=>{
+    input.value='';region.value='all';selected='all';shown=50;
+    buttons.forEach(button=>{const active=button.dataset.assetFilter==='all';button.classList.toggle('active',active);button.setAttribute('aria-pressed',String(active));});
+    refresh();
+  });
   refresh();
   document.querySelector('#dashboard-state').hidden=true;
   document.querySelector('#dashboard-data').hidden=false;
