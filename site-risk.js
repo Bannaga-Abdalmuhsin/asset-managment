@@ -46,6 +46,7 @@
       field('AC1',`${fmt(raw.ac1CapacityBtu/1000,0)}k Btu/h`),field('AC2',raw.ac2CapacityBtu?`${fmt(raw.ac2CapacityBtu/1000,0)}k Btu/h`:'—'),
       field('Rectifier',`${raw.rectifierCapacityKw} kW`),field('Site load',`${fmt(raw.telecomLoadTotalKw||raw.telecomLoadAllKw)} kW`),
       field('Shelter heat',`${fmt(raw.telecomHeatDissipationKbtuh/1000,2)} kBtu/h`),field('Technology',raw.connectedTechnology||'—'));
+    content.hidden=false;
     content.replaceChildren(details);
     content.append(make('h3','risk-section-title','Engineering scenarios'));
     const tabs=make('div','risk-tabs');tabs.setAttribute('role','tablist');tabs.setAttribute('aria-label','Site risk scenarios');
@@ -66,7 +67,7 @@
       if(!response.ok)throw new Error('Assessment data could not be loaded.');
       const rows=await response.json();const raw=rows.find(row=>String(row.cowId).toUpperCase()===event.detail.id);
       if(raw)renderSite(raw);
-      else{content.textContent='Assessment pending: no engineering survey for this COW is available in the source dashboard.';badge.textContent='Awaiting inputs';}
-    }catch(error){content.textContent=error.message;}
+      else{content.replaceChildren();content.hidden=true;badge.textContent='Awaiting inputs';}
+    }catch(error){content.hidden=false;content.textContent=error.message;}
   });
 })();
