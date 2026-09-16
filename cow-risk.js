@@ -57,8 +57,9 @@ function renderRiskDirectory(assets, assessments) {
   document.querySelector('#risk-coverage').textContent=coverage+'% reviewed';
   document.querySelector('#risk-coverage-fill').style.width=coverage+'%';
   document.querySelector('.risk-coverage-bar').setAttribute('aria-label',`${assessed.length} of ${joined.length} COWs assessed`);
-  for(const area of ['power','cooling','battery','rectifier']) {
-    const count=atRisk.filter(site=>site.assessment.riskScenarios.some(scenario=>scenario.flags[area])).length;
+  // Count each surveyed site once per risk area, across S1–S4.
+  for(const area of ['power','cooling','rectifier']) {
+    const count=assessed.filter(site=>site.assessment.scenarios.some(scenario=>scenario.flags[area])).length;
     document.querySelector(`#risk-${area}`).textContent=count.toLocaleString();
   }
   const sorted=joined.sort((a,b)=>{
