@@ -8,8 +8,8 @@
   <meta name="referrer" content="no-referrer" />
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: blob: https://*.supabase.co; connect-src 'self' https://*.supabase.co; object-src 'none'; base-uri 'self'; form-action 'self'; frame-src 'none'" />
   <title>Account Settings · stc COW Asset Management</title>
-  <link rel="stylesheet" href="styles.css?v=14" />
-  <link rel="stylesheet" href="account.css?v=1" />
+  <link rel="stylesheet" href="styles.css?v=18" />
+  <link rel="stylesheet" href="account.css?v=2" />
 </head>
 <body class="settings-body">
   <header class="topbar settings-topbar">
@@ -17,6 +17,18 @@
     <a class="back-link" href="index.html">← Back to map</a>
     <button class="settings-logout" type="button" data-logout>Logout</button>
   </header>
+  <div class="portal-layout">
+  <nav class="asset-menu portal-menu" aria-label="stc COW National Asset Status">
+    <a class="menu-title" href="index.html">stc COW National Asset Status</a>
+    <span class="menu-caption">WORKSPACE</span>
+    <a href="asset-details.html">Asset details</a>
+    <a href="status.html?view=summary">Asset summary</a>
+    <span class="menu-caption">OPERATIONS</span>
+    <a href="status.html?view=capex">CAPEX status</a>
+    <a href="status.html?view=opex">OPEX status</a>
+    <a href="status.html?view=fuel">Fuel status</a>
+    <a class="menu-settings" href="account.html" aria-current="page">Settings</a>
+  </nav>
   <main class="settings-shell">
     <header class="settings-title"><p>USER ACCOUNT</p><h1>Settings</h1><span>Manage your authentication profile.</span></header>
     <section class="profile-card">
@@ -42,6 +54,7 @@
       <p id="account-message" class="settings-message" hidden></p>
     </section>
   </main>
+  </div>
   <script src="config.js?v=4"></script>
   <script src="auth.js?v=9"></script>
   <script src="account.js?v=1"></script>
