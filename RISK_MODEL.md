@@ -25,11 +25,11 @@ Power, rectifier and shelter cooling are flagged when their margin is **below ze
 | S1–S2 | Prime | AC1 / AC1+AC2 | Normal |
 | S3–S4 | Prime | AC1 / AC1+AC2 | Charging |
 
-The source power equation for S3 uses **AC1 only**, although its cooling comparison includes AC1+AC2. The port retains this behavior. Field-confirmed overrides in the source designate exactly 19 sites at risk and hold all other surveyed sites safe. A confirmed field risk may have no computed flagged scenario among S1–S4; the UI states this explicitly instead of inventing one. The national COW Risk directory lists only flagged, actionable scenarios. The selected site's asset record shows the source Site List card with scenarios S1–S4 and their four risk dimensions and margins.
+The source power equation for S3 uses **AC1 only**, although its cooling comparison includes AC1+AC2. The port retains this behavior. A scenario is flagged if any of its power, rectifier, or applicable cooling margins are below zero. A surveyed site is **At risk** when at least one of S1–S4 is flagged; it is **Assessed safe** when all four are clear. The site record shows the number of flagged scenarios out of four and the four scenario margins. Sites with no engineering survey remain **Awaiting inputs**. Source field-status lists do not override this calculation.
 
 ## Files
 
-- `risk-engine.js`: scenario formulas, classification, field overrides.
+- `risk-engine.js`: S1–S4 scenario formulas and derived classification.
 - `risk-sites.json`: immutable source assessment inputs for the 79 surveyed sites.
 - `cow-risk.html`, `cow-risk.js`, `risk.css`: national risk directory joined to authorized CMDB site IDs.
 - `site-risk.js`: per-site Site List detail card embedded in `site.html`.
