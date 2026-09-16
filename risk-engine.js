@@ -53,9 +53,16 @@
       // S9 power/cooling are displayed as unavailable by the source engine;
       // its battery duration is the actionable outage risk.
       const actionable = outage ? flags.battery : Object.values(flags).some(Boolean);
-      return { id:number, name, powerSource:source, flags, actionable,
+      return { id:number, name, powerSource:source, coolingConfig:cooling,
+        batteryState:outage?'discharging':charging?'charging':'normal',
+        flags, actionable,
         powerMarginKw:powerMargin, rectifierMarginKw:rectifierMargin,
         coolingMarginBtu:coolingMargin, batteryUsefulHours:hours,
+        primePowerKw:prime, backupPowerKw:backup,
+        telecomPowerKw:telecom, telecomHeatBtu:heat,
+        ac1NetBtu:ac1, ac2NetBtu:ac2, ac1NetPowerKw:ac1Kw,
+        ac2NetPowerKw:ac2Kw, rectifierNetKw:raw.rectifierCapacityKw,
+        batteryChargingKw:chargingKw,
         riskScore:Number(flags.power)+Number(flags.rectifier)+Number(flags.battery)+(outage?0:Number(flags.cooling)) };
     }).filter(Boolean);
     const override = FIELD_RISK.has(id) ? 'Confirmed field risk' : FIELD_SAFE.has(id) ? 'Confirmed field safe' : null;
@@ -63,7 +70,7 @@
     // explicitly holds all remaining surveyed sites safe on the heat map.
     const overallRisk = FIELD_RISK.has(id);
     const riskScenarios = overallRisk ? scenarios.filter(s => s.actionable) : [];
-    return { id, overallRisk, override, riskScenarios, scenarioCount:scenarios.length,
+    return { id, overallRisk, override, scenarios, riskScenarios, scenarioCount:scenarios.length,
       worstRiskScore:Math.max(...scenarios.map(s=>s.riskScore)) };
   }
   global.CowRisk = { analyze, FIELD_RISK, FIELD_SAFE };
