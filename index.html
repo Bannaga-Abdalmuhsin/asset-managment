@@ -11,7 +11,7 @@
   <meta name="referrer" content="no-referrer" />
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://maps.googleapis.com https://maps.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: blob: https://*.supabase.co https://maps.gstatic.com https://maps.googleapis.com https://*.google.com https://*.ggpht.com; connect-src 'self' https://*.supabase.co https://maps.googleapis.com https://maps.gstatic.com https://raw.githubusercontent.com; font-src 'self' https://fonts.gstatic.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-src 'none'; upgrade-insecure-requests" />
   <title>stc COW Asset Management</title>
-  <link rel="stylesheet" href="styles.css?v=16" />
+  <link rel="stylesheet" href="styles.css?v=17" />
 </head>
 <body>
   <main class="app-shell">
@@ -42,28 +42,15 @@
       <div class="map-frame">
         <div id="map" aria-live="polite"></div>
         <div id="loading" class="loading-card"><span class="spinner"></span>Loading live assets…</div>
-        <aside class="map-stats" aria-label="Live COW asset totals" aria-live="polite">
-          <div class="map-stat total"><span>Total COWs</span><strong id="stat-total">—</strong></div>
-          <div class="map-stat on-air"><span>Total ON-AIR</span><strong id="stat-on-air">—</strong></div>
-          <div class="map-stat off-air"><span>Total OFF-AIR</span><strong id="stat-off-air">—</strong><small>Missing, faulty, burnt &amp; others</small></div>
-          <div class="map-stat in-progress"><span>Total IN-PROGRESS</span><strong id="stat-in-progress">—</strong></div>
-          <section class="region-stats" aria-label="Sites by region">
-            <h2>Sites by region</h2>
-            <div><span>Central</span><strong id="stat-central">—</strong></div>
-            <div><span>East</span><strong id="stat-east">—</strong></div>
-            <div><span>South</span><strong id="stat-south">—</strong></div>
-            <div><span>West</span><strong id="stat-west">—</strong></div>
-          </section>
-          <nav class="asset-menu" aria-label="stc COW National Asset Status">
-            <h2>stc COW National Asset Status</h2>
-            <button type="button" data-menu-action="details">Asset details</button>
-            <button type="button" data-menu-action="summary" class="active" aria-current="page">Asset summary</button>
-            <button type="button" disabled title="CAPEX status is not available yet">CAPEX status <small>Planned</small></button>
-            <button type="button" disabled title="OPEX status is not available yet">OPEX status <small>Planned</small></button>
-            <button type="button" disabled title="Fuel status is not available yet">Fuel status <small>Planned</small></button>
-            <a href="account.html">Settings</a>
-          </nav>
-        </aside>
+        <nav class="asset-menu map-menu" aria-label="stc COW National Asset Status">
+          <a class="menu-title" href="index.html" aria-current="page">stc COW National Asset Status</a>
+          <a href="asset-details.html">Asset details</a>
+          <a href="status.html?view=summary">Asset summary</a>
+          <a href="status.html?view=capex">CAPEX status</a>
+          <a href="status.html?view=opex">OPEX status</a>
+          <a href="status.html?view=fuel">Fuel status</a>
+          <a href="account.html">Settings</a>
+        </nav>
         <div class="status-filter" aria-label="Filter sites by status">
           <button class="active" data-status-filter="all">All</button>
           <button data-status-filter="on-air"><i class="dot online"></i>ON-AIR</button>
@@ -78,6 +65,6 @@
 
   <script src="config.js?v=4"></script>
   <script src="auth.js?v=9"></script>
-  <script src="app.js?v=23"></script>
+  <script src="app.js?v=24"></script>
 </body>
 </html>
