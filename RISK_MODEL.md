@@ -29,13 +29,13 @@ Power, rectifier and shelter cooling are flagged when their margin is **below ze
 | S7–S8 | Backup | AC1 / AC1+AC2 | Charging |
 | S9 | Outage | None | Discharging |
 
-The source power equation for S3 and S7 uses **AC1 only**, although their cooling comparison includes AC1+AC2. The port retains this behavior. CWN915 omits S6 and S8. Field-confirmed overrides in the source designate exactly 19 sites at risk and hold all other surveyed sites safe. A confirmed field risk may have no computed flagged scenario; the UI states this explicitly instead of inventing one. The site panel shows only flagged, actionable scenarios for a site classified at risk.
+The source power equation for S3 and S7 uses **AC1 only**, although their cooling comparison includes AC1+AC2. The port retains this behavior. CWN915 omits S6 and S8. Field-confirmed overrides in the source designate exactly 19 sites at risk and hold all other surveyed sites safe. A confirmed field risk may have no computed flagged scenario; the UI states this explicitly instead of inventing one. The national COW Risk directory lists only flagged, actionable scenarios. The selected site's asset record shows the source Site List card with all applicable scenarios and their four risk dimensions and margins.
 
 ## Files
 
 - `risk-engine.js`: scenario formulas, classification, field overrides.
 - `risk-sites.json`: immutable source assessment inputs for the 79 surveyed sites.
 - `cow-risk.html`, `cow-risk.js`, `risk.css`: national risk directory joined to authorized CMDB site IDs.
-- `site-risk.js`: per-site scenario display embedded in `site.html`.
+- `site-risk.js`: per-site Site List detail card embedded in `site.html`.
 
 To assess more sites, collect the same engineering inputs, validate them with the field team, then extend the input dataset or provide a secured backend endpoint. CMDB site status and map location alone do not establish generator, telecom, cooling or battery margins.
