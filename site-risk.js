@@ -35,7 +35,8 @@
   }
   function renderSite(raw){
     const result=window.CowRisk.analyze(raw);
-    badge.className='risk-pill '+(result.overallRisk?'risk':'safe');badge.textContent=result.overallRisk?'At risk':'Assessed safe';
+    badge.className='risk-pill '+(result.overallRisk?'risk':'safe');
+    badge.textContent=`${result.overallRisk?'At risk':'Assessed safe'} · ${result.flaggedScenarioCount}/${result.scenarioCount} flagged`;
     const power=raw.powerSource==='SB'?`SEC ${raw.secMeterCapacityAmp} A · Backup ${raw.backupGenCapacityKva} kVA`
       :raw.powerSource==='DG'?`Gen1 ${raw.singleGenCapacityKva} kVA · Gen2 ${raw.backupGenCapacityKva} kVA`
       :`Single generator ${raw.singleGenCapacityKva} kVA`;
