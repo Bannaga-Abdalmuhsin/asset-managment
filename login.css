@@ -13,6 +13,6 @@
 
 /* Attribution on the login photo */
 .powered-by { position:fixed; left:50%; bottom:14px; transform:translateX(-50%); z-index:2; display:flex; align-items:center; gap:10px; padding:2px 13px 2px 16px; border:1px solid rgba(255,255,255,.2); border-radius:14px; background:rgba(20,7,37,.66); box-shadow:0 10px 32px rgba(0,0,0,.24); backdrop-filter:blur(12px); color:#fff; font-size:14px; font-weight:700; white-space:nowrap; }
-.powered-logo { position:relative; display:block; flex:0 0 145px; width:145px; height:70px; overflow:hidden; }
-.powered-logo img { position:absolute; top:-38px; left:-5px; display:block; width:150px; height:150px; max-width:none; }
-@media (max-width:700px) { .powered-by { bottom:10px; gap:5px; padding:1px 8px 1px 10px; font-size:11px; } .powered-logo { flex-basis:112px; width:112px; height:55px; } .powered-logo img { width:120px; height:120px; top:-31px; left:-5px; } }
+.powered-logo { position:relative; display:block; flex:0 0 108px; width:108px; height:52px; overflow:hidden; }
+.powered-logo img { position:absolute; top:-29px; left:-4px; display:block; width:112px; height:112px; max-width:none; }
+@media (max-width:700px) { .powered-by { bottom:10px; gap:5px; padding:1px 8px 1px 10px; font-size:11px; } .powered-logo { flex-basis:90px; width:90px; height:44px; } .powered-logo img { width:96px; height:96px; top:-25px; left:-4px; } }
