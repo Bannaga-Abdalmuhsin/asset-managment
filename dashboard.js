@@ -1,8 +1,10 @@
 const dashboardPage = document.body.dataset.dashboardPage;
 const dashboardView = new URLSearchParams(location.search).get('view');
-const dashboardNames = { summary: 'Asset summary', capex: 'CAPEX status', opex: 'OPEX status', fuel: 'Fuel status' };
+const dashboardNames = { capex: 'CAPEX status', opex: 'OPEX status', fuel: 'Fuel status' };
 
-if (dashboardPage === 'status') {
+if (dashboardPage === 'status' && dashboardView === 'summary') location.replace('cow-risk.html');
+
+if (dashboardPage === 'status' && dashboardView !== 'summary') {
   const view = Object.hasOwn(dashboardNames, dashboardView) ? dashboardView : 'summary';
   document.querySelector('#view-title').textContent = dashboardNames[view];
   document.title = `${dashboardNames[view]} · stc COW Asset Management`;
