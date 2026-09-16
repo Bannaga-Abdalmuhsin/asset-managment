@@ -47,7 +47,6 @@
       field('Rectifier',`${raw.rectifierCapacityKw} kW`),field('Site load',`${fmt(raw.telecomLoadTotalKw||raw.telecomLoadAllKw)} kW`),
       field('Shelter heat',`${fmt(raw.telecomHeatDissipationKbtuh/1000,2)} kBtu/h`),field('Technology',raw.connectedTechnology||'—'));
     content.replaceChildren(details);
-    if(result.override)content.append(make('p','risk-note',`Field assessment: ${result.override}. Scenario calculations are shown separately.`));
     content.append(make('h3','risk-section-title','Engineering scenarios'));
     const tabs=make('div','risk-tabs');tabs.setAttribute('role','tablist');tabs.setAttribute('aria-label','Site risk scenarios');
     const panel=make('div','risk-scenario-detail');panel.setAttribute('role','tabpanel');
