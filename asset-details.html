@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en" class="auth-pending">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" type="image/svg+xml" href="cow-favicon.svg" />
+  <meta name="robots" content="noindex,nofollow,noarchive" />
+  <meta name="referrer" content="no-referrer" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: https://*.supabase.co; connect-src 'self' https://*.supabase.co; object-src 'none'; base-uri 'self'; form-action 'self'; frame-src 'none'" />
+  <title>Asset details · stc COW Asset Management</title>
+  <link rel="stylesheet" href="styles.css?v=17" />
+  <link rel="stylesheet" href="dashboard.css?v=1" />
+</head>
+<body class="dashboard-body" data-dashboard-page="details">
+  <header class="topbar dashboard-topbar">
+    <a class="brand" href="index.html"><span class="brand-mark"><img src="stc-logo.svg" alt="stc" /></span><span><strong>COW Asset Management</strong></span></a>
+    <a class="dashboard-back" href="index.html">← National map</a>
+    <div class="account-state">
+      <button id="account-trigger" class="avatar-button" type="button" aria-label="Open user menu" aria-haspopup="true" aria-expanded="false"><img class="user-avatar" alt="" hidden /><span class="user-initials">U</span></button>
+      <section id="account-menu" class="user-menu" aria-label="User menu" hidden>
+        <div class="user-menu-head"><strong id="current-user">Loading…</strong><small id="account-email">—</small></div>
+        <a href="account.html">Settings</a><button type="button" data-logout>Logout</button>
+      </section>
+    </div>
+  </header>
+  <div class="dashboard-layout">
+    <nav class="asset-menu dashboard-menu" aria-label="stc COW National Asset Status">
+      <a class="menu-title" href="index.html">stc COW National Asset Status</a>
+      <a href="asset-details.html" aria-current="page">Asset details</a>
+      <a href="status.html?view=summary">Asset summary</a>
+      <a href="status.html?view=capex">CAPEX status</a>
+      <a href="status.html?view=opex">OPEX status</a>
+      <a href="status.html?view=fuel">Fuel status</a>
+      <a href="account.html">Settings</a>
+    </nav>
+    <main class="dashboard-content">
+      <div class="dashboard-heading"><p>NATIONAL ASSET VIEW</p><h1>Asset details</h1><span>Counts from the authenticated COW asset records.</span></div>
+      <p id="dashboard-state" class="dashboard-state" role="status">Loading asset details…</p>
+      <div id="dashboard-data" hidden>
+        <section class="dashboard-counts" aria-label="Site status totals">
+          <article class="count-tile"><span>Total COWs</span><strong id="stat-total">—</strong></article>
+          <article class="count-tile on-air"><span>Total ON-AIR</span><strong id="stat-on-air">—</strong></article>
+          <article class="count-tile off-air"><span>Total OFF-AIR</span><strong id="stat-off-air">—</strong><small>Missing, faulty, burnt &amp; other statuses</small></article>
+          <article class="count-tile in-progress"><span>Total IN-PROGRESS</span><strong id="stat-in-progress">—</strong></article>
+        </section>
+        <section class="dashboard-section"><h2>Sites by region</h2>
+          <div class="region-counts">
+            <article><span>Central</span><strong id="stat-central">—</strong></article>
+            <article><span>East</span><strong id="stat-east">—</strong></article>
+            <article><span>South</span><strong id="stat-south">—</strong></article>
+            <article><span>West</span><strong id="stat-west">—</strong></article>
+          </div>
+        </section>
+        <section class="dashboard-section"><div class="directory-head"><div><h2>Site records</h2><p>Select a COW to view its full asset record.</p></div><label>Search site ID<input id="directory-search" type="search" placeholder="Search site ID" autocomplete="off" /></label></div><div id="directory-results" class="directory-results"></div></section>
+      </div>
+    </main>
+  </div>
+  <script src="config.js?v=4"></script><script src="auth.js?v=9"></script><script src="dashboard.js?v=1"></script>
+</body>
+</html>
