@@ -9,12 +9,7 @@
     ['Prime power · AC1 · normal','prime','ac1',false],
     ['Prime power · AC1+AC2 · normal','prime','both',false],
     ['Prime power · AC1 · charging','prime','both',true],
-    ['Prime power · AC1+AC2 · charging','prime','both',true],
-    ['Backup power · AC1 · normal','backup','ac1',false],
-    ['Backup power · AC1+AC2 · normal','backup','both',false],
-    ['Backup power · AC1 · charging','backup','both',true],
-    ['Backup power · AC1+AC2 · charging','backup','both',true],
-    ['Power outage · battery discharge','outage','none',false]
+    ['Prime power · AC1+AC2 · charging','prime','both',true]
   ];
   function analyze(raw) {
     const id = String(raw.cowId).trim().toUpperCase();
@@ -36,7 +31,6 @@
     const hours = raw.batteriesMaxUsefulTimeHours;
     const scenarios = definitions.map(([name,source,cooling,charging],i) => {
       const number = i + 1;
-      if (id === 'CWN915' && (number === 6 || number === 8)) return null;
       const outage = number === 9;
       const available = outage ? 0 : source === 'prime' ? prime : backup;
       let powerMargin = outage ? -telecom : available - ac1Kw - telecom;
@@ -64,7 +58,7 @@
         ac2NetPowerKw:ac2Kw, rectifierNetKw:raw.rectifierCapacityKw,
         batteryChargingKw:chargingKw,
         riskScore:Number(flags.power)+Number(flags.rectifier)+Number(flags.battery)+(outage?0:Number(flags.cooling)) };
-    }).filter(Boolean);
+    });
     const override = FIELD_RISK.has(id) ? 'Confirmed field risk' : FIELD_SAFE.has(id) ? 'Confirmed field safe' : null;
     // The source data marks exactly 19 field-confirmed sites at risk and
     // explicitly holds all remaining surveyed sites safe on the heat map.
