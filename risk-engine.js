@@ -1,9 +1,8 @@
-// Port of Cow-Risk-Dashboard_new/artifacts/hajj-dashboard/src/lib/calculations.ts.
+// S1–S4 scenario formulas adapted from Cow-Risk-Dashboard_new/artifacts/hajj-dashboard/src/lib/calculations.ts.
+// Site classification uses scenario flags only; no fixed field-status override.
 // Snapshot input: risk-sites.json (79 surveyed Hajj sites). Values remain in source units.
 (function (global) {
   'use strict';
-  const FIELD_RISK = new Set(['CWN076','CWN083','CWN050','CWN777','CWN101','CWN998','CWN967','CWN994','CWN081','CWN970','CWN208','CWN022','CWN099','CWN996','CWN092','CWN062','CWN080','CWN038','CWN206']);
-  const FIELD_SAFE = new Set(['CWN002','CWN074']);
   const FACTOR = .8 * .87 * .9;
   const definitions = [
     ['Prime power · AC1 · normal','prime','ac1',false],
@@ -56,13 +55,11 @@
         batteryChargingKw:chargingKw,
         riskScore:Number(flags.power)+Number(flags.rectifier)+Number(flags.cooling) };
     });
-    const override = FIELD_RISK.has(id) ? 'Confirmed field risk' : FIELD_SAFE.has(id) ? 'Confirmed field safe' : null;
-    // The source data marks exactly 19 field-confirmed sites at risk and
-    // explicitly holds all remaining surveyed sites safe on the heat map.
-    const overallRisk = FIELD_RISK.has(id);
-    const riskScenarios = overallRisk ? scenarios.filter(s => s.actionable) : [];
-    return { id, overallRisk, override, scenarios, riskScenarios, scenarioCount:scenarios.length,
+    const riskScenarios = scenarios.filter(s => s.actionable);
+    const overallRisk = riskScenarios.length > 0;
+    return { id, overallRisk, scenarios, riskScenarios, scenarioCount:scenarios.length,
+      flaggedScenarioCount:riskScenarios.length,
       worstRiskScore:Math.max(...scenarios.map(s=>s.riskScore)) };
   }
-  global.CowRisk = { analyze, FIELD_RISK, FIELD_SAFE };
+  global.CowRisk = { analyze };
 })(window);
