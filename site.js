@@ -16,7 +16,7 @@ function hasData(value){return value!==''&&!['n/a','na','none','null','undefined
 function renderRecord(record){
   const id=fieldValue(record,'COW ID'),status=fieldValue(record,'Site Status')||'UNKNOWN';
   document.title=`${id} · Asset Record`; document.querySelector('#record-id').textContent=id;
-  document.querySelector('#record-region').textContent=`${fieldValue(record,'Region')||'Unassigned'} Region · CMDB Asset Record`;
+  document.querySelector('#record-region').textContent=`${fieldValue(record,'Region')||'Unassigned'} Region`;
   document.querySelector('#record-location').textContent=[fieldValue(record,'District'),fieldValue(record,'City')].filter(Boolean).join(' · ')||'Location not recorded';
   const statusEl=document.querySelector('#record-status');statusEl.textContent=status;statusEl.classList.add(status.toUpperCase()==='ON-AIR'?'on':'off');
   const lat=fieldValue(record,'Latitude'),lon=fieldValue(record,'Longitude'),coordinateLink=document.querySelector('#coordinate-link');
