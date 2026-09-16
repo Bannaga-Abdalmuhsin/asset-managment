@@ -11,7 +11,7 @@
   <meta name="referrer" content="no-referrer" />
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://maps.googleapis.com https://maps.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: blob: https://*.supabase.co https://maps.gstatic.com https://maps.googleapis.com https://*.google.com https://*.ggpht.com; connect-src 'self' https://*.supabase.co https://maps.googleapis.com https://maps.gstatic.com https://raw.githubusercontent.com; font-src 'self' https://fonts.gstatic.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-src 'none'; upgrade-insecure-requests" />
   <title>stc COW Asset Management</title>
-  <link rel="stylesheet" href="styles.css?v=15" />
+  <link rel="stylesheet" href="styles.css?v=16" />
 </head>
 <body>
   <main class="app-shell">
@@ -54,6 +54,15 @@
             <div><span>South</span><strong id="stat-south">—</strong></div>
             <div><span>West</span><strong id="stat-west">—</strong></div>
           </section>
+          <nav class="asset-menu" aria-label="stc COW National Asset Status">
+            <h2>stc COW National Asset Status</h2>
+            <button type="button" data-menu-action="details">Asset details</button>
+            <button type="button" data-menu-action="summary" class="active" aria-current="page">Asset summary</button>
+            <button type="button" disabled title="CAPEX status is not available yet">CAPEX status <small>Planned</small></button>
+            <button type="button" disabled title="OPEX status is not available yet">OPEX status <small>Planned</small></button>
+            <button type="button" disabled title="Fuel status is not available yet">Fuel status <small>Planned</small></button>
+            <a href="account.html">Settings</a>
+          </nav>
         </aside>
         <div class="status-filter" aria-label="Filter sites by status">
           <button class="active" data-status-filter="all">All</button>
@@ -69,6 +78,6 @@
 
   <script src="config.js?v=4"></script>
   <script src="auth.js?v=9"></script>
-  <script src="app.js?v=22"></script>
+  <script src="app.js?v=23"></script>
 </body>
 </html>
