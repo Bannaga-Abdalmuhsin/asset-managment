@@ -9,10 +9,10 @@
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://*.supabase.co; connect-src 'self' https://*.supabase.co; object-src 'none'; base-uri 'self'; form-action 'self'; frame-src 'none'" />
   <title>COWs Risk Flags · stc COW Asset Management</title>
   <link rel="stylesheet" href="styles.css?v=18" />
-  <link rel="stylesheet" href="dashboard.css?v=2" />
-  <link rel="stylesheet" href="risk.css?v=1" />
+  <link rel="stylesheet" href="dashboard.css?v=4" />
+  <link rel="stylesheet" href="risk.css?v=2" />
 </head>
-<body class="dashboard-body">
+<body class="dashboard-body risk-dashboard">
   <header class="topbar dashboard-topbar">
     <a class="brand" href="index.html"><span class="brand-mark"><img src="stc-logo.svg" alt="stc" /></span><span><strong>COW Asset Management</strong></span></a>
     <a class="dashboard-back" href="index.html">← National map</a>
@@ -40,20 +40,35 @@
       <div class="dashboard-heading"><p>ENGINEERING ASSESSMENT</p><h1>COWs Risk Flags</h1></div>
       <p id="risk-state" class="dashboard-state" role="status">Loading COW risk assessments…</p>
       <div id="risk-data" hidden>
-        <section class="risk-totals" aria-label="Assessment totals">
-          <article><span>CMDB sites</span><strong id="risk-total">—</strong></article>
-          <article><span>Assessed</span><strong id="risk-assessed">—</strong></article>
-          <article class="risk-danger"><span>At risk</span><strong id="risk-count">—</strong></article>
-          <article><span>Awaiting inputs</span><strong id="risk-pending">—</strong></article>
+        <section class="risk-totals" aria-label="Filter sites by assessment">
+          <button class="risk-total-tile active" type="button" data-risk-filter="all" aria-pressed="true"><span>CMDB sites</span><strong id="risk-total">—</strong><small>All COW records</small></button>
+          <button class="risk-total-tile assessed" type="button" data-risk-filter="assessed" aria-pressed="false"><span>Assessed</span><strong id="risk-assessed">—</strong><small>Engineering inputs available</small></button>
+          <button class="risk-total-tile risk-danger" type="button" data-risk-filter="risk" aria-pressed="false"><span>At risk</span><strong id="risk-count">—</strong><small>Field risk confirmed</small></button>
+          <button class="risk-total-tile pending" type="button" data-risk-filter="pending" aria-pressed="false"><span>Awaiting inputs</span><strong id="risk-pending">—</strong><small>Not yet assessed</small></button>
         </section>
-        <section class="dashboard-section">
-          <div class="directory-head"><div><h2>Site scenarios</h2></div><label>Search COW ID<input id="risk-search" type="search" placeholder="Search site ID" autocomplete="off" /></label></div>
-          <div class="risk-filters" aria-label="Risk filters"><button type="button" data-risk-filter="all" class="active">All sites</button><button type="button" data-risk-filter="risk">At risk</button><button type="button" data-risk-filter="safe">Assessed safe</button><button type="button" data-risk-filter="pending">Awaiting inputs</button></div>
-          <div id="risk-list" class="risk-list"></div>
+        <section class="dashboard-section risk-overview" aria-labelledby="risk-overview-title">
+          <div class="risk-overview-head"><div><p class="section-eyebrow">ASSESSMENT COVERAGE</p><h2 id="risk-overview-title">Engineering review</h2></div><strong id="risk-coverage">—</strong></div>
+          <div class="risk-coverage-bar" role="img" aria-label="Assessment coverage"><div id="risk-coverage-fill"></div></div>
+          <div class="risk-overview-legend"><span><i class="risk-dot reviewed"></i><strong id="risk-reviewed-count">—</strong> assessed</span><span><i class="risk-dot waiting"></i><strong id="risk-waiting-count">—</strong> awaiting inputs</span><span class="risk-safe-summary"><strong id="risk-safe-count">—</strong> assessed safe</span></div>
+        </section>
+        <section class="dashboard-section risk-areas" aria-labelledby="risk-areas-title">
+          <div class="risk-areas-head"><div><p class="section-eyebrow">FLAGGED SCENARIOS</p><h2 id="risk-areas-title">Engineering risk areas</h2></div></div>
+          <div class="risk-area-grid">
+            <article><span>Power</span><strong id="risk-power">—</strong></article>
+            <article><span>Cooling</span><strong id="risk-cooling">—</strong></article>
+            <article><span>Battery</span><strong id="risk-battery">—</strong></article>
+            <article><span>Rectifier</span><strong id="risk-rectifier">—</strong></article>
+          </div>
+        </section>
+        <section class="dashboard-section risk-directory" id="risk-directory" aria-labelledby="risk-directory-title">
+          <div class="directory-head"><div><p class="section-eyebrow">SITE DIRECTORY</p><h2 id="risk-directory-title">Risk flags by COW</h2></div><div class="directory-controls"><label>Search COW ID<input id="risk-search" type="search" placeholder="Enter a COW ID" autocomplete="off" /></label><label>Assessment<select id="risk-filter"><option value="all">All assessments</option><option value="assessed">Assessed</option><option value="risk">At risk</option><option value="safe">Assessed safe</option><option value="pending">Awaiting inputs</option></select></label><label>Region<select id="risk-region"><option value="all">All regions</option><option value="Central">Central</option><option value="East">East</option><option value="South">South</option><option value="West">West</option><option value="Other">Other</option></select></label></div></div>
+          <div class="directory-meta"><span id="risk-directory-count" role="status">—</span><button id="risk-clear" type="button" hidden>Clear filters</button></div>
+          <div class="directory-table-wrap"><table class="directory-table risk-table"><thead><tr><th scope="col">COW ID</th><th scope="col">Assessment</th><th scope="col">Region</th><th scope="col">CMDB status</th><th scope="col">Flagged scenarios</th><th scope="col">Record</th></tr></thead><tbody id="risk-list"></tbody></table></div>
+          <button id="risk-more" class="directory-more" type="button" hidden>Show more sites</button>
         </section>
       </div>
     </main>
   </div>
-  <script src="config.js?v=4"></script><script src="auth.js?v=9"></script><script src="risk-engine.js?v=1"></script><script src="cow-risk.js?v=1"></script>
+  <script src="config.js?v=4"></script><script src="auth.js?v=9"></script><script src="risk-engine.js?v=1"></script><script src="cow-risk.js?v=2"></script>
 </body>
 </html>
