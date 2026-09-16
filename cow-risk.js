@@ -34,7 +34,7 @@ function riskRow(site) {
   const region=document.createElement('td');region.textContent=riskRegion(site.region);
   const status=document.createElement('td');status.textContent=site.status||'—';
   const scenarios=document.createElement('td');
-  scenarios.textContent=site.assessment ? site.assessment.riskScenarios.length.toLocaleString() : '—';
+  scenarios.textContent=site.assessment ? `${site.assessment.flaggedScenarioCount} / ${site.assessment.scenarioCount}` : '—';
   const record=document.createElement('td'),open=document.createElement('a');
   open.href=link.href;open.className='risk-open';open.textContent='View site ↗';record.append(open);
   row.append(id,assessment,region,status,scenarios,record);
