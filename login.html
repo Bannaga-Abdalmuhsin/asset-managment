@@ -9,9 +9,10 @@
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src https://*.supabase.co; object-src 'none'; base-uri 'self'; form-action 'self'; frame-src 'none'" />
   <title>Sign in · stc COW Asset Management</title>
   <link rel="stylesheet" href="styles.css?v=10" />
-  <link rel="stylesheet" href="login.css?v=6" />
+  <link rel="stylesheet" href="login.css?v=7" />
 </head>
 <body class="login-body">
+  <div class="login-layout">
   <main class="login-card">
     <div class="login-brand"><span class="brand-mark"><img src="stc-logo.svg" alt="stc" /></span><div><strong>COW Asset Management</strong><small>Authorized access only</small></div></div>
     <div class="login-copy"><h1>Sign in</h1><span>Enter your assigned username and password.</span></div>
@@ -23,7 +24,8 @@
     </form>
     <footer>INTERNAL · RESTRICTED</footer>
   </main>
-  <div class="powered-by" aria-label="Powered by ACES Managed Services"><span>Powered by:</span><span class="powered-logo"><img src="aces-managed-services.png" alt="ACES Managed Services" /></span></div>
+  <div class="powered-by"><span class="powered-logo"><img src="aces-managed-services.png" alt="ACES Managed Services" /></span></div>
+  </div>
   <script src="config.js?v=4"></script>
   <script src="login.js?v=1"></script>
 </body>
