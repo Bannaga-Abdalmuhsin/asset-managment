@@ -1,42 +1,73 @@
 (function(){
-  const section=document.querySelector('#site-risk');
-  if(!section) return;
-  const fmt=(value,unit)=>`${Number(value).toFixed(2)} ${unit}`;
-  function riskItem(scenario){
-    const article=document.createElement('article');article.className='risk-scenario';
-    const title=document.createElement('h3');title.textContent=`S${scenario.id} — ${scenario.name}`;
-    const list=document.createElement('ul');
-    const issues=[];
-    if(scenario.id===9){
-      if(scenario.flags.battery) issues.push(`Battery autonomy ${fmt(scenario.batteryUsefulHours,'h')} — below 1 hour`);
-    }else{
-      if(scenario.flags.power) issues.push(`Power margin ${fmt(scenario.powerMarginKw,'kW')}`);
-      if(scenario.flags.rectifier) issues.push(`Rectifier margin ${fmt(scenario.rectifierMarginKw,'kW')}`);
-      if(scenario.flags.cooling) issues.push(`Cooling margin ${fmt(scenario.coolingMarginBtu,'Btu/h')}`);
+  const content=document.querySelector('#site-risk-content');
+  const badge=document.querySelector('#site-risk-status');
+  if(!content||!badge)return;
+  const make=(tag,cls,text)=>{const el=document.createElement(tag);if(cls)el.className=cls;if(text!==undefined)el.textContent=text;return el;};
+  const fmt=(value,d=1)=>Number(value).toFixed(d);
+  const field=(name,value)=>{const item=make('div','risk-detail-field');item.append(make('span','',name),make('strong','',value));return item;};
+  function renderScenario(sc,panel){
+    panel.replaceChildren(make('h3','risk-scenario-title',`S${sc.id} — ${sc.name}`));
+    panel.append(make('p','risk-scenario-context',[
+      sc.powerSource==='outage'?'Power outage':sc.powerSource==='prime'?'Prime power':'Backup power',
+      sc.coolingConfig==='none'?'No cooling':sc.coolingConfig==='ac1'?'AC1 operational':'AC1 + AC2 operational',
+      sc.batteryState==='normal'?'Batteries fully charged':sc.batteryState==='charging'?'Batteries charging':'Batteries discharging',
+      'Full traffic load','46°C'].join(' · ')));
+    const metrics=make('div','risk-metrics');
+    for(const [label,key] of [['Power risk','power'],['Cooling risk','cooling'],['Battery risk','battery'],['Rectifier risk','rectifier']]){
+      const cell=make('div','risk-metric');cell.append(make('span','',label),make('strong',sc.flags[key]?'negative':'positive',sc.flags[key]?'RISK':'SAFE'));metrics.append(cell);
     }
-    issues.forEach(message=>{const item=document.createElement('li');item.textContent=message;list.append(item);});
-    article.append(title,list);return article;
+    panel.append(metrics,make('h4','','Engineering margins'));
+    const margins=make('div','risk-margin-list');
+    for(const [label,value,unit,key] of [
+      ['Power margin',sc.powerMarginKw,'kW','power'],['Rectifier margin',sc.rectifierMarginKw,'kW','rectifier'],
+      ['Battery useful time',sc.batteryUsefulHours,'h','battery'],['Cooling margin',sc.coolingMarginBtu/1000,'kBtu/h','cooling']]){
+      const row=make('div','risk-margin');row.append(make('span','',label),make('strong',sc.flags[key]?'negative':'',`${fmt(value,2)} ${unit}`));margins.append(row);
+    }
+    panel.append(margins,make('h4','','Engineering parameters'));
+    const inputs=make('div','risk-detail-grid');
+    if(sc.primePowerKw>0)inputs.append(field('Prime net power',`${fmt(sc.primePowerKw)} kW`));
+    if(sc.backupPowerKw>0)inputs.append(field('Backup generator net power',`${fmt(sc.backupPowerKw)} kW`));
+    inputs.append(field('Site load',`${fmt(sc.telecomPowerKw)} kW`),field('Shelter heat',`${fmt(sc.telecomHeatBtu/1000)} kBtu/h`),
+      field('AC1 net cooling',`${fmt(sc.ac1NetBtu/1000)} kBtu/h (${fmt(sc.ac1NetPowerKw)} kW)`));
+    if(sc.ac2NetBtu>0)inputs.append(field('AC2 net cooling',`${fmt(sc.ac2NetBtu/1000)} kBtu/h (${fmt(sc.ac2NetPowerKw)} kW)`));
+    inputs.append(field('Rectifier net',`${fmt(sc.rectifierNetKw)} kW`),field('Battery charging',`${fmt(sc.batteryChargingKw)} kW`));
+    panel.append(inputs);
   }
-  async function show(id){
-    const response=await fetch('risk-sites.json?v=1',{cache:'no-store'});
-    if(!response.ok) throw new Error('Assessment data could not be loaded.');
-    const rows=await response.json();const raw=rows.find(row=>String(row.cowId).toUpperCase()===id);
-    const content=document.querySelector('#site-risk-content');content.replaceChildren();
-    if(!raw){content.textContent='Assessment pending: this COW has no verified engineering input in the risk dataset.';return;}
+  function renderSite(raw){
     const result=window.CowRisk.analyze(raw);
-    document.querySelector('#site-risk-status').className='risk-pill '+(result.overallRisk?'risk':'safe');
-    document.querySelector('#site-risk-status').textContent=result.overallRisk?'At risk':'Assessed safe';
-    if(result.override){const note=document.createElement('p');note.className='risk-note';note.textContent=`Field assessment: ${result.override}. Scenario flags below are calculated independently.`;content.append(note);}
-    if(!result.riskScenarios.length){
-      const note=document.createElement('p');note.textContent=result.overallRisk
-        ? 'Confirmed field risk. No scenario in the available engineering inputs crosses a calculated threshold; field findings require review.'
-        : 'No flagged scenarios for this site.';content.append(note);return;
-    }
-    const grid=document.createElement('div');grid.className='risk-scenarios';
-    result.riskScenarios.forEach(scenario=>grid.append(riskItem(scenario)));
-    content.append(grid);
+    badge.className='risk-pill '+(result.overallRisk?'risk':'safe');badge.textContent=result.overallRisk?'At risk':'Assessed safe';
+    const power=raw.powerSource==='SB'?`SEC ${raw.secMeterCapacityAmp} A · Backup ${raw.backupGenCapacityKva} kVA`
+      :raw.powerSource==='DG'?`Gen1 ${raw.singleGenCapacityKva} kVA · Gen2 ${raw.backupGenCapacityKva} kVA`
+      :`Single generator ${raw.singleGenCapacityKva} kVA`;
+    const details=make('div','risk-detail-grid');
+    details.append(field('Location',raw.location||'—'),field('Type',raw.shelterType==='Outdoor'?'Outdoor cabinet':'Shelter'),
+      field('Power configuration',raw.powerSource==='SB'?'Commercial with backup':raw.powerSource==='DG'?'Dual generator':'Single generator'),
+      field('Power source',power),field('Battery',`${raw.batteriesCapacityAh*raw.numStrings} Ah lead-acid`),
+      field('AC1',`${fmt(raw.ac1CapacityBtu/1000,0)}k Btu/h`),field('AC2',raw.ac2CapacityBtu?`${fmt(raw.ac2CapacityBtu/1000,0)}k Btu/h`:'—'),
+      field('Rectifier',`${raw.rectifierCapacityKw} kW`),field('Site load',`${fmt(raw.telecomLoadTotalKw||raw.telecomLoadAllKw)} kW`),
+      field('Shelter heat',`${fmt(raw.telecomHeatDissipationKbtuh/1000,2)} kBtu/h`),field('Technology',raw.connectedTechnology||'—'));
+    content.replaceChildren(details);
+    if(result.override)content.append(make('p','risk-note',`Field assessment: ${result.override}. Scenario calculations are shown separately.`));
+    content.append(make('h3','risk-section-title','Engineering scenarios'));
+    const tabs=make('div','risk-tabs');tabs.setAttribute('role','tablist');tabs.setAttribute('aria-label','Site risk scenarios');
+    const panel=make('div','risk-scenario-detail');panel.setAttribute('role','tabpanel');
+    result.scenarios.forEach((sc,i)=>{
+      const button=make('button',`${sc.actionable?'flagged':'safe'}${i===0?' active':''}`,`S${sc.id}`);
+      button.type='button';button.title=sc.name;button.setAttribute('role','tab');button.setAttribute('aria-selected',String(i===0));
+      button.addEventListener('click',()=>{
+        tabs.querySelectorAll('button').forEach(b=>{b.classList.remove('active');b.setAttribute('aria-selected','false');});
+        button.classList.add('active');button.setAttribute('aria-selected','true');renderScenario(sc,panel);
+      });tabs.append(button);
+    });
+    content.append(tabs,panel);renderScenario(result.scenarios[0],panel);
   }
-  window.addEventListener('asset-record-ready',event=>show(event.detail.id).catch(error=>{
-    document.querySelector('#site-risk-content').textContent=error.message;
-  }));
+  window.addEventListener('asset-record-ready',async event=>{
+    try{
+      const response=await fetch('risk-sites.json?v=2',{cache:'no-store'});
+      if(!response.ok)throw new Error('Assessment data could not be loaded.');
+      const rows=await response.json();const raw=rows.find(row=>String(row.cowId).toUpperCase()===event.detail.id);
+      if(raw)renderSite(raw);
+      else{content.textContent='Assessment pending: no engineering survey for this COW is available in the source dashboard.';badge.textContent='Awaiting inputs';}
+    }catch(error){content.textContent=error.message;}
+  });
 })();
