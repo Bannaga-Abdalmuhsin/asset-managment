@@ -8,8 +8,8 @@
   <meta name="referrer" content="no-referrer" />
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: https://*.supabase.co; connect-src 'self' https://*.supabase.co; object-src 'none'; base-uri 'self'; form-action 'self'; frame-src 'none'" />
   <title>Status · stc COW Asset Management</title>
-  <link rel="stylesheet" href="styles.css?v=17" />
-  <link rel="stylesheet" href="dashboard.css?v=1" />
+  <link rel="stylesheet" href="styles.css?v=18" />
+  <link rel="stylesheet" href="dashboard.css?v=2" />
 </head>
 <body class="dashboard-body" data-dashboard-page="status">
   <header class="topbar dashboard-topbar">
@@ -26,12 +26,14 @@
   <div class="dashboard-layout">
     <nav class="asset-menu dashboard-menu" aria-label="stc COW National Asset Status">
       <a class="menu-title" href="index.html">stc COW National Asset Status</a>
+      <span class="menu-caption">WORKSPACE</span>
       <a href="asset-details.html">Asset details</a>
       <a href="status.html?view=summary" data-view="summary">Asset summary</a>
+      <span class="menu-caption">OPERATIONS</span>
       <a href="status.html?view=capex" data-view="capex">CAPEX status</a>
       <a href="status.html?view=opex" data-view="opex">OPEX status</a>
       <a href="status.html?view=fuel" data-view="fuel">Fuel status</a>
-      <a href="account.html">Settings</a>
+      <a class="menu-settings" href="account.html">Settings</a>
     </nav>
     <main class="dashboard-content">
       <div class="dashboard-heading"><p>stc COW NATIONAL ASSET STATUS</p><h1 id="view-title">Status</h1></div>
