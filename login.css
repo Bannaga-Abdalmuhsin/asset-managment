@@ -11,8 +11,10 @@
 
 @media (max-width:700px){.login-body{place-items:center;padding:20px;background-position:58% center;background-image:linear-gradient(rgba(25,0,43,.72),rgba(10,5,18,.82)),url('cow-login-background.jpg')}.login-card{padding:22px 20px;transform:none}}
 
-/* Attribution on the login photo */
-.powered-by { position:fixed; left:50%; bottom:14px; transform:translateX(-50%); z-index:2; display:flex; align-items:center; gap:10px; padding:2px 13px 2px 16px; border:1px solid rgba(255,255,255,.2); border-radius:14px; background:rgba(20,7,37,.66); box-shadow:0 10px 32px rgba(0,0,0,.24); backdrop-filter:blur(12px); color:#fff; font-size:14px; font-weight:700; white-space:nowrap; }
-.powered-logo { position:relative; display:block; flex:0 0 108px; width:108px; height:52px; overflow:hidden; }
+/* ACES attribution aligned directly beneath the login card */
+.login-layout { width:min(380px,100%); display:flex; flex-direction:column; align-items:center; transform:scale(.75); transform-origin:left center; }
+.login-layout .login-card { width:100%; transform:none; }
+.powered-by { display:flex; justify-content:center; align-items:center; width:100%; height:56px; margin-top:12px; }
+.powered-logo { position:relative; display:block; width:108px; height:52px; overflow:hidden; }
 .powered-logo img { position:absolute; top:-29px; left:-4px; display:block; width:112px; height:112px; max-width:none; }
-@media (max-width:700px) { .powered-by { bottom:10px; gap:5px; padding:1px 8px 1px 10px; font-size:11px; } .powered-logo { flex-basis:90px; width:90px; height:44px; } .powered-logo img { width:96px; height:96px; top:-25px; left:-4px; } }
+@media (max-width:700px) { .login-layout { transform:none; } .powered-by { height:48px; margin-top:8px; } .powered-logo { width:90px; height:44px; } .powered-logo img { width:96px; height:96px; top:-25px; left:-4px; } }
