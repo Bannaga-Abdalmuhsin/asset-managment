@@ -39,6 +39,7 @@ function renderRecord(record){
   });
   nav.append(priority,secondary);selectCategory(0);
   document.querySelector('#record-loading').hidden=true;document.querySelector('#record').hidden=false;
+  window.dispatchEvent(new CustomEvent('asset-record-ready',{detail:{id}}));
 }
 async function loadRecord(){
   const siteId=normalize(new URLSearchParams(location.search).get('site')).toUpperCase();
