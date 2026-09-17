@@ -1,7 +1,7 @@
 -- Apply once in the Supabase SQL editor before running the fuel import.
 -- One current plan per site. All valid dates are retained, including overdue plans.
 create table if not exists public.fuel_plans (
-  site_id text primary key references public.assets(id) on delete cascade,
+  site_id text primary key,
   region text not null check (region in ('Central','East','West','South')),
   cow_status text not null,
   next_fueling_date date not null,
