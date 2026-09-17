@@ -4,6 +4,19 @@ const ORDER=['pending','completed','closed','unknown'];
 function node(tag,cls,value){const el=document.createElement(tag);if(cls)el.className=cls;if(value!==undefined)el.textContent=value;return el;}
 function config(){const base=clean(window.ASSET_APP_CONFIG?.supabaseUrl).replace(/\/$/,'');const key=clean(window.ASSET_APP_CONFIG?.supabaseAnonKey),token=sessionStorage.getItem('asset_access_token');if(!base||!key||!token)throw Error('Sign in required');return {base,headers:{apikey:key,Authorization:'Bearer '+token,Accept:'application/json'}};}
 async function query(params){const {base,headers}=config();const response=await fetch(base+'/rest/v1/em_work_orders?'+params,{headers,cache:'no-store',credentials:'omit',referrerPolicy:'no-referrer',signal:AbortSignal.timeout(16000)});if(!response.ok)throw Error('Request data unavailable');return response.json();}
+async function assetIds(){
+  const {base,headers}=config(),ids=new Set();
+  for(let offset=0;;offset+=1000){
+    const response=await fetch(base+'/rest/v1/assets?select=id&order=id&limit=1000&offset='+offset,{headers,cache:'no-store',credentials:'omit',referrerPolicy:'no-referrer',signal:AbortSignal.timeout(16000)});
+    if(!response.ok)throw Error('Asset catalogue unavailable');
+    const page=await response.json();
+    if(!Array.isArray(page))throw Error('Asset catalogue unavailable');
+    page.forEach(row=>{const id=clean(row.id).toUpperCase();if(id)ids.add(id);});
+    if(page.length<1000)break;
+  }
+  if(!ids.size)throw Error('Asset catalogue unavailable');
+  return ids;
+}
 const day=date=>date?new Intl.DateTimeFormat('en-GB',{dateStyle:'medium',timeZone:'UTC'}).format(new Date(date)):'—';
 const badge=group=>node('span','em-badge '+group,GROUPS[group]||GROUPS.unknown);
 function categories(rows,container,selected,onSelect){
@@ -17,10 +30,12 @@ async function summary(){
   document.querySelector('#development-panel').hidden=true;
   const state=document.querySelector('#em-state');state.hidden=false;
   try{
+    const idsPromise=assetIds();
     const rows=[];for(let offset=0;;offset+=1000){const page=await query('select=id,site_id,site_name,expense_type,element,workflow_status,status_group,created_at,last_modified_at&order=id&limit=1000&offset='+offset);rows.push(...page);if(page.length<1000)break;}
-    const source=rows.filter(row=>row.expense_type===view.toUpperCase());
+    const ids=await idsPromise;
+    const source=rows.filter(row=>row.expense_type===view.toUpperCase() && ids.has(clean(row.site_id).toUpperCase()));
     if(!source.length){state.textContent='No '+view.toUpperCase()+' requests have been imported yet.';return;}
-    document.querySelector('#em-scope').textContent=view.toUpperCase()+' · '+source.length.toLocaleString()+' source requests';
+    document.querySelector('#em-scope').textContent=view.toUpperCase()+' · '+source.length.toLocaleString()+' requests for catalogued assets';
     for(const group of ORDER){const target=document.querySelector('#em-'+group);if(target)target.textContent=source.filter(row=>row.status_group===group).length.toLocaleString();}
     document.querySelector('#em-not-completed').textContent=source.filter(row=>row.status_group!=='completed').length.toLocaleString();
     const container=document.querySelector('#em-categories'),body=document.querySelector('#em-rows'),input=document.querySelector('#em-search'),match=document.querySelector('#em-match'),more=document.querySelector('#em-more');
@@ -46,6 +61,8 @@ async function site(){
   const panel=document.querySelector('#site-em');if(!panel)return;
   const id=new URLSearchParams(location.search).get('site')?.trim().toUpperCase();if(!/^[A-Z0-9_-]{2,24}$/.test(id))return;
   try{
+    const ids=await assetIds();
+    if(!ids.has(id)){panel.hidden=true;return;}
     const rows=await query('select=id,site_id,expense_type,element,workflow_status,status_group,created_at,last_modified_at&site_id=eq.'+encodeURIComponent(id)+'&order=id.desc&limit=1000');
     panel.replaceChildren(node('h2','','CAPEX / OPEX requests'));
     if(!rows.length){panel.append(node('p','em-empty','No CAPEX or OPEX requests are recorded for this site.'));return;}
