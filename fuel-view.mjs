@@ -39,7 +39,9 @@ async function siteFuel(){
 }
 async function summaryFuel(){
   const panel=document.querySelector('#fuel-summary');
-  if(!panel)return;
+  if(!panel || new URLSearchParams(location.search).get('view')!=='fuel')return;
+  document.querySelector('#development-panel').hidden=true;
+  document.querySelector('#fuel-state').hidden=false;
   try{
     let rows=[];
     for(let offset=0;;offset+=1000){
@@ -73,4 +75,4 @@ async function summaryFuel(){
     document.querySelector('#fuel-state').hidden=true;panel.hidden=false;render();
   }catch(_){document.querySelector('#fuel-state').textContent='Fuel status is temporarily unavailable. Please try again later.';}
 }
-window.assetAuthReady().then(()=>{if(document.querySelector('#fuel-summary'))return summaryFuel();return siteFuel();});
+window.assetAuthReady().then(()=>{if(document.querySelector('#fuel-summary'))return summaryFuel();return siteFuel();}).catch(()=>{const state=document.querySelector('#fuel-state');if(state){state.hidden=false;state.textContent='Fuel status is temporarily unavailable.';}});
