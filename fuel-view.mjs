@@ -29,7 +29,7 @@ async function siteFuel(){
     const rows=await request('select=site_id,region,cow_status,next_fueling_date,last_fueling_date,last_fueling_qty,district,city&site_id=eq.'+encodeURIComponent(id)+'&limit=1');
     panel.replaceChildren();
     const header=node('div','fuel-site-head','');header.append(node('h2','','Fuel status'));
-    if(!rows.length){header.append(node('span','fuel-badge unknown','No plan recorded'));panel.append(header,node('p','fuel-no-plan','No valid fuel plan is available for this site.'));return;}
+    if(!rows.length){header.append(node('span','fuel-badge unknown','No plan recorded'));panel.append(header,node('p','fuel-no-plan','No dated fuel plan is recorded for this site. SEC sites do not have a fueling date; West and South plans will be added later.'));return;}
     const row=rows[0];header.append(badge(row.next_fueling_date));
     const grid=node('div','fuel-site-grid','');grid.append(
       detail('Next fueling',fmt(row.next_fueling_date)),detail('Last fueling',fmt(row.last_fueling_date)),
