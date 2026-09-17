@@ -7,6 +7,12 @@ where not exists (
   where upper(btrim(a.id)) = upper(btrim(w.site_id))
 );
 
+do $ begin
+  if not exists (select 1 from public.assets) then
+    raise exception 'Asset catalogue is empty; no CAPEX/OPEX cleanup performed';
+  end if;
+end $;
+
 delete from public.em_work_orders w
 where not exists (
   select 1 from public.assets a
