@@ -51,16 +51,24 @@ async function site(){
     if(!rows.length){panel.append(node('p','em-empty','No CAPEX or OPEX requests are recorded for this site.'));return;}
     for(const type of ['CAPEX','OPEX']){
       const entries=rows.filter(row=>row.expense_type===type);if(!entries.length)continue;
-      const details=document.createElement('details');details.className='em-site-details';details.open=type==='CAPEX';
+      const details=document.createElement('details');details.className='em-site-details';details.open=true;
       details.append(node('summary','',type+' · '+entries.length+' requests'));
-      const grid=node('div','em-site-grid');
-      for(const row of entries){
-        const card=node('article','em-site-card '+row.status_group),head=node('div','em-site-card-head');
-        head.append(node('strong','',row.element||'Other'),badge(row.status_group));
-        card.append(head,node('span','',row.workflow_status||'Status not recorded'),node('small','','Request #'+row.id+' · '+day(row.last_modified_at||row.created_at)));
-        grid.append(card);
+      for(const [label,selected] of [['Not completed',entries.filter(row=>row.status_group!=='completed')],['Completed',entries.filter(row=>row.status_group==='completed')]]){
+        const section=node('section','em-site-group'),heading=node('h3','',label+' · '+selected.length);
+        section.append(heading);
+        if(selected.length){
+          const grid=node('div','em-site-grid');
+          for(const row of selected){
+            const card=node('article','em-site-card '+row.status_group),head=node('div','em-site-card-head');
+            head.append(node('strong','',row.element||'Other'),badge(row.status_group));
+            card.append(head,node('span','',row.workflow_status||'Status not recorded'),node('small','','Request #'+row.id+' · '+day(row.last_modified_at||row.created_at)));
+            grid.append(card);
+          }
+          section.append(grid);
+        }else section.append(node('p','em-empty','No '+label.toLowerCase()+' requests.'));
+        details.append(section);
       }
-      details.append(grid);panel.append(details);
+      panel.append(details);
     }
   }catch(_){panel.replaceChildren(node('h2','','CAPEX / OPEX requests'),node('p','em-empty','Request records are temporarily unavailable.'));}
 }
