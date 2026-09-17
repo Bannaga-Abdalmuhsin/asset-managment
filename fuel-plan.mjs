@@ -34,10 +34,16 @@ export function parseCsv(csv) {
 export function dateIso(value) {
   const text=String(value??'').trim();
   if(!text || text.includes('#'))return null;
-  let match=text.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  let match=text.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
   let y,m,d;
-  if(match){d=Number(match[1]);m=Number(match[2]);y=Number(match[3]);}
-  else {match=text.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);if(!match)return null; y=Number(match[1]);m=Number(match[2]);d=Number(match[3]);}
+  if(match){y=Number(match[1]);m=Number(match[2]);d=Number(match[3]);}
+  else {
+    // Energy Dashboard exports NextFuelingPlan as MM-DD-YYYY and
+    // LastFuelingDate as MM/DD/YYYY (the sheet locale is en_US).
+    match=text.match(/^(\d{1,2})[-/](\d{1,2})[-/](\d{4})$/);
+    if(!match)return null;
+    m=Number(match[1]);d=Number(match[2]);y=Number(match[3]);
+  }
   const utc=new Date(Date.UTC(y,m-1,d));
   if(utc.getUTCFullYear()!==y || utc.getUTCMonth()!==m-1 || utc.getUTCDate()!==d)return null;
   return [y,String(m).padStart(2,'0'),String(d).padStart(2,'0')].join('-');
