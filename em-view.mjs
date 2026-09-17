@@ -21,7 +21,8 @@ async function summary(){
     const source=rows.filter(row=>row.expense_type===view.toUpperCase());
     if(!source.length){state.textContent='No '+view.toUpperCase()+' requests have been imported yet.';return;}
     document.querySelector('#em-scope').textContent=view.toUpperCase()+' · '+source.length.toLocaleString()+' source requests';
-    for(const group of ORDER)document.querySelector('#em-'+group).textContent=source.filter(row=>row.status_group===group).length.toLocaleString();
+    for(const group of ORDER){const target=document.querySelector('#em-'+group);if(target)target.textContent=source.filter(row=>row.status_group===group).length.toLocaleString();}
+    document.querySelector('#em-not-completed').textContent=source.filter(row=>row.status_group!=='completed').length.toLocaleString();
     const container=document.querySelector('#em-categories'),body=document.querySelector('#em-rows'),input=document.querySelector('#em-search'),match=document.querySelector('#em-match'),more=document.querySelector('#em-more');
     let category='all',group='not-completed',shown=80;
     const buttons=[...document.querySelectorAll('[data-em-filter]')];
