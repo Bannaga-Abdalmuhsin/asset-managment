@@ -1,0 +1,66 @@
+const clean=value=>String(value??'').trim();
+const GROUPS={pending:'Awaiting installation / approval',completed:'Completed',closed:'Closed without completion',unknown:'Status not recorded'};
+const ORDER=['pending','completed','closed','unknown'];
+function node(tag,cls,value){const el=document.createElement(tag);if(cls)el.className=cls;if(value!==undefined)el.textContent=value;return el;}
+function config(){const base=clean(window.ASSET_APP_CONFIG?.supabaseUrl).replace(/\/$/,'');const key=clean(window.ASSET_APP_CONFIG?.supabaseAnonKey),token=sessionStorage.getItem('asset_access_token');if(!base||!key||!token)throw Error('Sign in required');return {base,headers:{apikey:key,Authorization:'Bearer '+token,Accept:'application/json'}};}
+async function query(params){const {base,headers}=config();const response=await fetch(base+'/rest/v1/em_work_orders?'+params,{headers,cache:'no-store',credentials:'omit',referrerPolicy:'no-referrer',signal:AbortSignal.timeout(16000)});if(!response.ok)throw Error('Request data unavailable');return response.json();}
+const day=date=>date?new Intl.DateTimeFormat('en-GB',{dateStyle:'medium',timeZone:'UTC'}).format(new Date(date)):'—';
+const badge=group=>node('span','em-badge '+group,GROUPS[group]||GROUPS.unknown);
+function categories(rows,container,selected,onSelect){
+  const counts=new Map();for(const row of rows){const key=row.element||'Other';if(!counts.has(key))counts.set(key,{total:0,pending:0,completed:0});const n=counts.get(key);n.total++;n[row.status_group]=(n[row.status_group]||0)+1;}
+  container.replaceChildren();
+  for(const [name,n] of [...counts].sort((a,b)=>b[1].total-a[1].total||a[0].localeCompare(b[0]))){const button=node('button','em-category'+(selected===name?' active':''));button.type='button';button.setAttribute('aria-pressed',String(selected===name));button.append(node('strong','',name),node('span','',n.total+' requests'),node('small','',n.pending+' awaiting · '+n.completed+' completed'));button.addEventListener('click',()=>onSelect(name===selected?'all':name));container.append(button);}
+}
+function tableRow(row){const tr=document.createElement('tr'),site=document.createElement('td'),link=node('a','',row.site_id);link.href='site.html?site='+encodeURIComponent(row.site_id);site.append(link);tr.append(site,node('td','',row.element||'—'));const status=document.createElement('td');status.append(badge(row.status_group),node('small','em-workflow',row.workflow_status||'No status'));tr.append(status,node('td','',String(row.id)),node('td','',day(row.last_modified_at||row.created_at)));return tr;}
+async function summary(){
+  const view=new URLSearchParams(location.search).get('view');if(!['capex','opex'].includes(view))return;
+  document.querySelector('#development-panel').hidden=true;
+  const state=document.querySelector('#em-state');state.hidden=false;
+  try{
+    const rows=[];for(let offset=0;;offset+=1000){const page=await query('select=id,site_id,site_name,expense_type,element,workflow_status,status_group,created_at,last_modified_at&order=id&limit=1000&offset='+offset);rows.push(...page);if(page.length<1000)break;}
+    const source=rows.filter(row=>row.expense_type===view.toUpperCase());
+    if(!source.length){state.textContent='No '+view.toUpperCase()+' requests have been imported yet.';return;}
+    document.querySelector('#em-scope').textContent=view.toUpperCase()+' · '+source.length.toLocaleString()+' source requests';
+    for(const group of ORDER)document.querySelector('#em-'+group).textContent=source.filter(row=>row.status_group===group).length.toLocaleString();
+    const container=document.querySelector('#em-categories'),body=document.querySelector('#em-rows'),input=document.querySelector('#em-search'),match=document.querySelector('#em-match'),more=document.querySelector('#em-more');
+    let category='all',group='pending',shown=80;
+    const buttons=[...document.querySelectorAll('[data-em-filter]')];
+    function refresh(){
+      buttons.forEach(b=>{const active=b.dataset.emFilter===group;b.classList.toggle('active',active);b.setAttribute('aria-pressed',String(active));});
+      categories(source,container,category,next=>{category=next;shown=80;refresh();});
+      const q=input.value.trim().toUpperCase();
+      const filtered=source.filter(row=>(category==='all'||row.element===category)&&(group==='all'||row.status_group===group)&&(!q||row.site_id.toUpperCase().includes(q)||String(row.site_name||'').toUpperCase().includes(q)));
+      filtered.sort((a,b)=>(b.last_modified_at||b.created_at||'').localeCompare(a.last_modified_at||a.created_at||'')||b.id-a.id);
+      body.replaceChildren(...filtered.slice(0,shown).map(tableRow));
+      if(!filtered.length){const tr=document.createElement('tr'),td=node('td','em-empty','No matching requests.');td.colSpan=5;tr.append(td);body.append(tr);}
+      match.textContent='Showing '+Math.min(shown,filtered.length).toLocaleString()+' of '+filtered.length.toLocaleString()+' requests'+(category==='all'?'':' · '+category);
+      more.hidden=shown>=filtered.length;
+    }
+    buttons.forEach(b=>b.addEventListener('click',()=>{group=b.dataset.emFilter;shown=80;refresh();}));
+    input.addEventListener('input',()=>{shown=80;refresh();});more.addEventListener('click',()=>{shown+=80;refresh();});
+    state.hidden=true;document.querySelector('#em-summary').hidden=false;refresh();
+  }catch(_){state.textContent='CAPEX/OPEX records are temporarily unavailable. Please try again later.';}
+}
+async function site(){
+  const panel=document.querySelector('#site-em');if(!panel)return;
+  const id=new URLSearchParams(location.search).get('site')?.trim().toUpperCase();if(!/^[A-Z0-9_-]{2,24}$/.test(id))return;
+  try{
+    const rows=await query('select=id,site_id,expense_type,element,workflow_status,status_group,created_at,last_modified_at&site_id=eq.'+encodeURIComponent(id)+'&order=id.desc&limit=1000');
+    panel.replaceChildren(node('h2','','CAPEX / OPEX requests'));
+    if(!rows.length){panel.append(node('p','em-empty','No CAPEX or OPEX requests are recorded for this site.'));return;}
+    for(const type of ['CAPEX','OPEX']){
+      const entries=rows.filter(row=>row.expense_type===type);if(!entries.length)continue;
+      const details=document.createElement('details');details.className='em-site-details';details.open=type==='CAPEX';
+      details.append(node('summary','',type+' · '+entries.length+' requests'));
+      const grid=node('div','em-site-grid');
+      for(const row of entries){
+        const card=node('article','em-site-card '+row.status_group),head=node('div','em-site-card-head');
+        head.append(node('strong','',row.element||'Other'),badge(row.status_group));
+        card.append(head,node('span','',row.workflow_status||'Status not recorded'),node('small','','Request #'+row.id+' · '+day(row.last_modified_at||row.created_at)));
+        grid.append(card);
+      }
+      details.append(grid);panel.append(details);
+    }
+  }catch(_){panel.replaceChildren(node('h2','','CAPEX / OPEX requests'),node('p','em-empty','Request records are temporarily unavailable.'));}
+}
+window.assetAuthReady().then(()=>document.querySelector('#em-summary')?summary():site()).catch(()=>{const state=document.querySelector('#em-state');if(state){state.hidden=false;state.textContent='CAPEX/OPEX records are temporarily unavailable.';}});
