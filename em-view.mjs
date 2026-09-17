@@ -61,8 +61,10 @@ async function site(){
   const panel=document.querySelector('#site-em');if(!panel)return;
   const id=new URLSearchParams(location.search).get('site')?.trim().toUpperCase();if(!/^[A-Z0-9_-]{2,24}$/.test(id))return;
   try{
-    const ids=await assetIds();
-    if(!ids.has(id)){panel.hidden=true;return;}
+    const {base,headers}=config();
+    const assetResponse=await fetch(base+'/rest/v1/assets?select=id&id=eq.'+encodeURIComponent(id)+'&limit=1',{headers,cache:'no-store',credentials:'omit',referrerPolicy:'no-referrer',signal:AbortSignal.timeout(16000)});
+    if(!assetResponse.ok)throw Error('Asset catalogue unavailable');
+    if(!(await assetResponse.json()).length){panel.hidden=true;return;}
     const rows=await query('select=id,site_id,expense_type,element,workflow_status,status_group,created_at,last_modified_at&site_id=eq.'+encodeURIComponent(id)+'&order=id.desc&limit=1000');
     panel.replaceChildren(node('h2','','CAPEX / OPEX requests'));
     if(!rows.length){panel.append(node('p','em-empty','No CAPEX or OPEX requests are recorded for this site.'));return;}
