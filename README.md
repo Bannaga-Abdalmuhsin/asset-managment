@@ -35,8 +35,8 @@ The sync upserts by site ID and removes stale Central/East plans after a success
 The CAPEX/OPEX status pages and each site record read the authenticated `public.em_work_orders` table. Import the private user-provided workbook through a controlled database session:
 
 1. Run [supabase/em-work-orders.sql](supabase/em-work-orders.sql) in the **same Supabase project** as the asset catalogue.
-2. Run the generated private `CAPEX-OPEX Supabase import.sql` provided separately with the workbook. It is deliberately excluded from this public repository and Pages deployment. It upserts by source request ID.
-3. Check the grouped count query at the end of that script. Expected source counts are **1,035 CAPEX** (413 completed, 622 not completed) and **88 OPEX** (36 completed, 52 not completed), totaling **1,123** requests.
+2. Run the generated private `CAPEX-OPEX Supabase import.sql` provided separately with the workbook. It is deliberately excluded from this public repository and Pages deployment. It upserts by source request ID and removes requests whose site is absent from `public.assets`. If the import was already run, execute [supabase/em-assets-only.sql](supabase/em-assets-only.sql) once to remove those unmatched requests.
+3. Check the grouped count query at the end of that script. The workbook contains **1,035 CAPEX** (413 completed, 622 not completed) and **88 OPEX** (36 completed, 52 not completed), totaling **1,123** source requests. Database and website counts will be lower because only sites present in `public.assets` are included.
 
 The website defaults to **Not completed** by equipment category for each expense type, with **Completed** separate. Rejected and cancelled requests remain visible among not completed records with their original workflow status. These are request statuses and do not independently verify physical installation. Reads require an authenticated Supabase session; the service-role key and workbook data must never be committed to the public repository.
 
