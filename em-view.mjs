@@ -17,6 +17,18 @@ async function assetIds(){
   if(!ids.size)throw Error('Asset catalogue unavailable');
   return ids;
 }
+function latestCapex(rows){
+  const latest=new Map(),others=[];
+  for(const row of rows){
+    if(row.expense_type!=='CAPEX'){others.push(row);continue;}
+    const key=clean(row.site_id).toUpperCase()+'\u0000'+(clean(row.element).toUpperCase()||'OTHER');
+    const old=latest.get(key);
+    const stamp=value=>{const parsed=Date.parse(value||'');return Number.isFinite(parsed)?parsed:-Infinity;};
+    const recent=value=>Math.max(stamp(value.last_modified_at),stamp(value.created_at));
+    if(!old||recent(row)>recent(old)||recent(row)===recent(old)&&Number(row.id)>Number(old.id))latest.set(key,row);
+  }
+  return others.concat([...latest.values()]);
+}
 const day=date=>date?new Intl.DateTimeFormat('en-GB',{dateStyle:'medium',timeZone:'UTC'}).format(new Date(date)):'—';
 const badge=group=>node('span','em-badge '+group,GROUPS[group]||GROUPS.unknown);
 function categories(rows,container,selected,onSelect){
@@ -33,9 +45,8 @@ async function summary(){
     const idsPromise=assetIds();
     const rows=[];for(let offset=0;;offset+=1000){const page=await query('select=id,site_id,site_name,expense_type,element,workflow_status,status_group,created_at,last_modified_at&order=id&limit=1000&offset='+offset);rows.push(...page);if(page.length<1000)break;}
     const ids=await idsPromise;
-    const source=rows.filter(row=>row.expense_type===view.toUpperCase() && ids.has(clean(row.site_id).toUpperCase()));
+    const source=latestCapex(rows.filter(row=>row.expense_type===view.toUpperCase() && ids.has(clean(row.site_id).toUpperCase())));
     if(!source.length){state.textContent='No '+view.toUpperCase()+' requests have been imported yet.';return;}
-    document.querySelector('#em-scope').textContent=view.toUpperCase()+' · '+source.length.toLocaleString()+' requests for catalogued assets';
     for(const group of ORDER){const target=document.querySelector('#em-'+group);if(target)target.textContent=source.filter(row=>row.status_group===group).length.toLocaleString();}
     document.querySelector('#em-not-completed').textContent=source.filter(row=>row.status_group!=='completed').length.toLocaleString();
     const container=document.querySelector('#em-categories'),body=document.querySelector('#em-rows'),input=document.querySelector('#em-search'),match=document.querySelector('#em-match'),more=document.querySelector('#em-more');
@@ -69,7 +80,7 @@ async function site(){
     panel.replaceChildren(node('h2','','CAPEX / OPEX requests'));
     if(!rows.length){panel.append(node('p','em-empty','No CAPEX or OPEX requests are recorded for this site.'));return;}
     for(const type of ['CAPEX','OPEX']){
-      const entries=rows.filter(row=>row.expense_type===type);if(!entries.length)continue;
+      const entries=latestCapex(rows.filter(row=>row.expense_type===type));if(!entries.length)continue;
       const details=document.createElement('details');details.className='em-site-details';details.open=true;
       details.append(node('summary','',type+' · '+entries.length+' requests'));
       for(const [label,selected] of [['Not completed',entries.filter(row=>row.status_group!=='completed')],['Completed',entries.filter(row=>row.status_group==='completed')]]){
