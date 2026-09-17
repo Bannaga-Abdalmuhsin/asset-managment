@@ -10,6 +10,7 @@
   <title>Status · stc COW Asset Management</title>
   <link rel="stylesheet" href="styles.css?v=18" />
   <link rel="stylesheet" href="dashboard.css?v=2" />
+  <link rel="stylesheet" href="fuel.css?v=1" />
 </head>
 <body class="dashboard-body" data-dashboard-page="status">
   <header class="topbar dashboard-topbar">
@@ -37,9 +38,32 @@
     </nav>
     <main class="dashboard-content">
       <div class="dashboard-heading"><p>NATIONAL ASSET STATUS</p><h1 id="view-title">Status</h1></div>
-      <section class="development-panel"><span class="development-symbol" aria-hidden="true">◌</span><h2>Under development</h2><p>This view will be available when its asset data and reporting requirements are ready.</p><a href="asset-details.html">View asset details →</a></section>
+      <p id="fuel-state" hidden>Loading fuel plans…</p>
+      <section id="fuel-summary" class="fuel-summary" hidden aria-label="Fuel plan summary">
+        <p id="fuel-asof" class="fuel-intro"></p>
+        <div class="fuel-counts">
+          <div class="fuel-count"><small>Planned sites</small><strong id="fuel-total">—</strong></div>
+          <div class="fuel-count due"><small>Overdue</small><strong id="fuel-due">—</strong></div>
+          <div class="fuel-count today"><small>Today</small><strong id="fuel-today">—</strong></div>
+          <div class="fuel-count soon"><small>Coming soon · 1–3 days</small><strong id="fuel-coming3">—</strong></div>
+          <div class="fuel-count healthy"><small>Healthy · 4+ days</small><strong id="fuel-next15">—</strong></div>
+          <div class="fuel-count"><small>Central</small><strong id="fuel-Central">—</strong></div>
+          <div class="fuel-count"><small>East</small><strong id="fuel-East">—</strong></div>
+        </div>
+        <div class="fuel-toolbar">
+          <input id="fuel-search" type="search" placeholder="Search site ID or city" aria-label="Search fuel plans" />
+          <select id="fuel-region" aria-label="Region"><option value="all">All regions</option><option>Central</option><option>East</option></select>
+          <select id="fuel-filter" aria-label="Fuel plan status"><option value="all">All statuses</option><option value="due">Overdue</option><option value="today">Today</option><option value="coming3">Coming soon</option><option value="next15">Healthy</option></select>
+        </div>
+        <p id="fuel-match-count" class="fuel-intro"></p>
+        <div class="fuel-table-wrap"><table class="fuel-table">
+          <thead><tr><th>Site</th><th>Region</th><th>Next fueling</th><th>Status</th><th>Last fueling</th><th>Last quantity</th></tr></thead>
+          <tbody id="fuel-rows"></tbody>
+        </table></div>
+      </section>
+      <section class="development-panel" id="development-panel"><span class="development-symbol" aria-hidden="true">◌</span><h2>Under development</h2><p>This view will be available when its asset data and reporting requirements are ready.</p><a href="asset-details.html">View asset details →</a></section>
     </main>
   </div>
-  <script src="config.js?v=4"></script><script src="auth.js?v=9"></script><script src="dashboard.js?v=1"></script>
+  <script src="config.js?v=4"></script><script src="auth.js?v=9"></script><script src="dashboard.js?v=1"></script><script type="module" src="fuel-view.mjs?v=1"></script>
 </body>
 </html>
