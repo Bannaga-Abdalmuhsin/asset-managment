@@ -13,6 +13,7 @@
   <link rel="stylesheet" href="site.css?v=11" />
   <link rel="stylesheet" href="risk.css?v=3" />
   <link rel="stylesheet" href="fuel.css?v=1" />
+  <link rel="stylesheet" href="em.css?v=1" />
 </head>
 <body class="record-body">
   <header class="topbar record-topbar">
@@ -49,6 +50,7 @@
         <div><p id="record-region" class="site-kicker"></p><div class="site-title-row"><h1 id="record-id"></h1><span id="record-status" class="status-pill"></span></div><p id="record-location" class="site-location"></p></div>
         <a id="coordinate-link" class="map-link" target="_blank" rel="noopener noreferrer">Open coordinates ↗</a>
       </header>
+      <section id="site-em" class="em-site" aria-label="Site CAPEX and OPEX requests"><h2>CAPEX / OPEX requests</h2><p class="em-empty">Loading requests…</p></section>
       <section id="site-fuel" class="fuel-site" aria-label="Site fuel status"><h2>Fuel status</h2><p class="fuel-no-plan">Loading fuel plan…</p></section>
       <section id="site-risk" class="risk-panel" aria-label="COWs Risk Flags assessment"><div class="risk-panel-head"><div><h2>COWs Risk Flags</h2></div><span id="site-risk-status" class="risk-pill">Assessment pending</span></div><div id="site-risk-content">Loading risk scenarios…</div></section>
       <nav id="category-nav" class="category-nav" aria-label="Asset system categories"></nav>
@@ -62,5 +64,6 @@
   <script src="site-risk.js?v=6"></script>
   <script src="site.js?v=13"></script>
   <script type="module" src="fuel-view.mjs?v=2"></script>
+  <script type="module" src="em-view.mjs?v=1"></script>
 </body>
 </html>
