@@ -45,7 +45,7 @@ export function dateIso(value) {
     m=Number(match[1]);d=Number(match[2]);y=Number(match[3]);
   }
   const utc=new Date(Date.UTC(y,m-1,d));
-  if(utc.getUTCFullYear()!==y || utc.getUTCMonth()!==m-1 || utc.getUTCDate()!==d)return null;
+  if(y<2020 || y>2100 || utc.getUTCFullYear()!==y || utc.getUTCMonth()!==m-1 || utc.getUTCDate()!==d)return null;
   return [y,String(m).padStart(2,'0'),String(d).padStart(2,'0')].join('-');
 }
 
