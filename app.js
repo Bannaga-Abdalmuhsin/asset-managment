@@ -104,7 +104,7 @@ function drawMarkers() {
   markerById.clear();
   assets.forEach(asset => {
     const online = isOnAir(asset.status);
-    const marker = new google.maps.Marker({ map, position: { lat: asset.lat, lng: asset.lon }, title: asset.id, zIndex: 6, optimized:true, icon: online ? { url: 'cow-map-onair.svg', scaledSize: new google.maps.Size(32, 32), anchor: new google.maps.Point(16, 16) } : { path: google.maps.SymbolPath.CIRCLE, scale: 5.5, fillColor: '#f04438', fillOpacity: .96, strokeColor: '#f4f7fb', strokeWeight: 1 } });
+    const marker = new google.maps.Marker({ map, position: { lat: asset.lat, lng: asset.lon }, title: asset.id, zIndex: 6, optimized:true, icon: { url: online ? 'cow-map-onair.svg?v=2' : 'cow-map-offair.svg?v=2', scaledSize: new google.maps.Size(32, 32), anchor: new google.maps.Point(16, 16) } });
     marker.__asset=asset;
     marker.addListener('click', () => { infoWindow.setContent(`<div class="gm-asset"><b>${escapeHTML(asset.id)}</b><span>${escapeHTML(asset.status || 'Unknown')} · ${escapeHTML(asset.region)}</span><a href="site.html?site=${encodeURIComponent(asset.id)}">View asset record →</a></div>`); infoWindow.open({ map, anchor: marker }); });
     markerById.set(asset.id, marker);
