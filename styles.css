@@ -93,7 +93,7 @@ button, input { font: inherit; }
 .legend span { display: flex; align-items: center; gap: 8px; }
 .dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
 .online { background: var(--green); box-shadow: 0 0 10px rgba(50,213,131,.75); }
-.offline { background: var(--red); box-shadow: 0 0 10px rgba(240,68,56,.72); }
+.offline { background: #87919e; box-shadow: 0 0 10px rgba(135,145,158,.6); }
 
 .map-frame { position: absolute; inset: 0; }
 #map { position: absolute; inset: 0; background: #08131f; }
