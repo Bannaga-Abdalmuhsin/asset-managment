@@ -12,7 +12,7 @@
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: https://*.supabase.co; connect-src 'self' https://*.supabase.co; object-src 'none'; base-uri 'self'; form-action 'self'; frame-src 'none'" />
   <title>Status · stc COW Asset Management</title>
   <link rel="stylesheet" href="styles.css?v=21" />
-  <link rel="stylesheet" href="dashboard.css?v=5" />
+  <link rel="stylesheet" href="dashboard.css?v=6" />
   <link rel="stylesheet" href="em.css?v=2" />
 </head>
 <body class="dashboard-body" data-dashboard-page="status">
@@ -56,11 +56,11 @@
         <div id="em-categories" class="em-categories" aria-label="Equipment categories"></div>
         <input id="em-search" class="em-search" type="search" placeholder="Search site ID or name" aria-label="Search CAPEX/OPEX sites" />
         <p id="em-match" class="em-intro"></p>
-        <div class="em-table-wrap"><table class="em-table"><thead><tr><th>Site</th><th>Category</th><th>Request status</th><th>Request ID</th><th>Updated</th></tr></thead><tbody id="em-rows"></tbody></table></div>
+        <div class="em-table-wrap"><table class="em-table"><thead><tr><th scope="col"><button class="table-sort" type="button" data-sort="site">Site</button></th><th scope="col"><button class="table-sort" type="button" data-sort="category">Category</button></th><th scope="col"><button class="table-sort" type="button" data-sort="status">Request status</button></th><th scope="col"><button class="table-sort" type="button" data-sort="request">Request ID</button></th><th scope="col" aria-sort="descending"><button class="table-sort" type="button" data-sort="updated">Updated</button></th></tr></thead><tbody id="em-rows"></tbody></table></div>
         <button id="em-more" class="em-more" type="button" hidden>Show more</button>
       </section>
     </main>
   </div>
-  <script src="config.js?v=4"></script><script src="auth.js?v=9"></script><script src="dashboard.js?v=2"></script><script type="module" src="em-view.mjs?v=5"></script>
+  <script src="config.js?v=4"></script><script src="auth.js?v=9"></script><script src="dashboard.js?v=3"></script><script type="module" src="em-view.mjs?v=6"></script>
 </body>
 </html>
