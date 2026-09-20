@@ -173,13 +173,28 @@ function renderDashboard(records) {
   const clear=document.querySelector('#directory-clear');
   const count=document.querySelector('#directory-count');
   const buttons=[...document.querySelectorAll('[data-asset-filter]')];
-  let selected='all',shown=50;
+  const sortButtons=[...document.querySelectorAll('#site-directory [data-sort]')];
+  const collator=new Intl.Collator(undefined,{numeric:true,sensitivity:'base'});
+  let selected='all',shown=50,sortKey='id',sortDirection=1;
+  const sortValue=(asset,key)=>{
+    if(key==='status')return asset.status||'';
+    if(key==='region')return asset.region||'';
+    if(key==='area')return [clean(asset.City),clean(asset.District)].filter(Boolean).join(' ');
+    if(key==='location')return asset.warehouse?.name||(siteStatus(asset)==='off-air'?'Still on sites':'');
+    return asset.id;
+  };
+  const updateSortHeaders=()=>sortButtons.forEach(button=>{
+    const header=button.closest('th'),active=button.dataset.sort===sortKey;
+    if(active)header.setAttribute('aria-sort',sortDirection===1?'ascending':'descending');
+    else header.removeAttribute('aria-sort');
+  });
   const refresh=()=>{
     const query=input.value.trim().toUpperCase();
     const matching=records.filter(asset=>
       (selected==='all'||siteStatus(asset)===selected) &&
       (region.value==='all'||asset.region===region.value) &&
-      asset.id.toUpperCase().includes(query));
+      asset.id.toUpperCase().includes(query))
+      .sort((a,b)=>sortDirection*collator.compare(sortValue(a,sortKey),sortValue(b,sortKey)));
     const visible=matching.slice(0,shown);
     tbody.replaceChildren(...visible.map(makeDirectoryRow));
     if(!matching.length){
@@ -197,6 +212,12 @@ function renderDashboard(records) {
     refresh();
     document.querySelector('#site-directory').scrollIntoView({behavior:'smooth',block:'start'});
   }));
+  sortButtons.forEach(button=>button.addEventListener('click',()=>{
+    const key=button.dataset.sort;
+    if(sortKey===key)sortDirection*=-1;else{sortKey=key;sortDirection=1;}
+    shown=50;updateSortHeaders();refresh();
+  }));
+  updateSortHeaders();
   input.addEventListener('input',()=>{shown=50;refresh();});
   region.addEventListener('change',()=>{shown=50;refresh();});
   more.addEventListener('click',()=>{shown+=50;refresh();});
