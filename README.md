@@ -1,6 +1,6 @@
 # stc COW National Asset Status
 
-Internal-facing prototype for managing STC Cells on Wheels (COWs) across Saudi Arabia. The application combines an authenticated national map, CMDB asset records, engineering risk flags, CAPEX/OPEX requests, fuel-plan status, warehouse location logic, and user profile controls.
+Internal-facing prototype for managing STC Cells on Wheels (COWs) across Saudi Arabia. The application combines an authenticated national map, CMDB asset records, engineering risk flags, CAPEX/OPEX requests, warehouse location logic, and user profile controls.
 
 > This repository is a prototype hosted on public GitHub Pages. It is not an STC production security boundary. Do not store confidential operational data, service-role credentials, passwords, or unrestricted API keys in browser-delivered files.
 
@@ -20,7 +20,6 @@ Internal-facing prototype for managing STC Cells on Wheels (COWs) across Saudi A
 | Site record | CMDB fields grouped into Radio, Microwave, Tower, Overview, Power, HVAC, DC Power and Fire |
 | Risk flags | Local S1–S4 engineering model joined to authorized CMDB site IDs |
 | CAPEX/OPEX | Authenticated Supabase records, equipment categories, latest CAPEX request per site/category |
-| Fuel status | Dated Central/East plans synchronized to Supabase and shown nationally and per site |
 | Account | Supabase-authenticated profile, password update and optional avatar |
 
 ## Architecture
@@ -46,11 +45,10 @@ The frontend is static HTML, CSS and JavaScript. Runtime data is requested direc
 | `login.html` | Username/password sign-in |
 | `index.html` | National Google map and primary navigation |
 | `asset-details.html` | National inventory, status counts, regions and warehouse view |
-| `site.html?site=COW001` | One authorized site record |
+| `site.html?site=COW001` | One authorized CMDB, risk and CAPEX/OPEX site record |
 | `cow-risk.html` | National COW risk directory and S1–S4 flag summary |
 | `status.html?view=capex` | CAPEX requests |
 | `status.html?view=opex` | OPEX requests |
-| `status.html?view=fuel` | Fuel-plan summary and site-wise status |
 | `account.html` | Authentication profile settings |
 
 Invalid or missing status views are normalized to CAPEX without displaying obsolete placeholder content. Loading, empty and error states are rendered explicitly, and elements carrying `hidden` remain hidden until their corresponding module is ready.
@@ -67,13 +65,11 @@ Invalid or missing status views are normalized to CAPEX without displaying obsol
 | `cow-risk.js` | National risk directory joined to current asset catalogue |
 | `site-risk.js` | Site-level risk input and S1–S4 scenario presentation |
 | `risk-engine.js` | Deterministic S1–S4 engineering calculations and flag classification |
-| `fuel-plan.mjs` | Fuel CSV parsing, date normalization and fuel-status classification |
-| `fuel-view.mjs` | Supabase fuel queries and national/site rendering |
 | `em-view.mjs` | CAPEX/OPEX queries, filters and latest-CAPEX-per-category logic |
 | `account.js` | Account-page bootstrap; profile actions are provided by `auth.js` |
 | `config.js` | Build-generated public runtime configuration |
 
-Presentation is divided across `styles.css`, `dashboard.css`, `site.css`, `risk.css`, `fuel.css`, `em.css`, `login.css`, and `account.css`.
+Presentation is divided across `styles.css`, `dashboard.css`, `site.css`, `risk.css`, `em.css`, `login.css`, and `account.css`.
 
 ## Data model
 
@@ -89,10 +85,6 @@ Defined in `supabase/schema.sql`.
 - `source_updated_at`, `updated_at`: synchronization timestamps
 
 The list/map query fetches only the small summary columns. The heavier `details` JSON is requested only when a site is opened.
-
-### `public.fuel_plans`
-
-Defined in `supabase/fuel-plans.sql`. One current dated plan is stored per site. The frontend classifies each date as overdue, today, coming soon, healthy, or unavailable.
 
 ### `public.em_work_orders`
 
@@ -144,7 +136,6 @@ Importer-only secrets:
 
 - `SUPABASE_SERVICE_ROLE_KEY`
 - optional `CMDB_CSV_URL`
-- optional `FUEL_CSV_URL`
 
 The service-role key must never appear in `config.js`, repository files, Pages artifacts, browser storage or client requests.
 
@@ -153,8 +144,7 @@ The service-role key must never appear in `config.js`, repository files, Pages a
 Run these files in the Supabase SQL editor:
 
 1. `supabase/schema.sql`
-2. `supabase/fuel-plans.sql`
-3. `supabase/em-work-orders.sql`
+2. `supabase/em-work-orders.sql`
 
 If an earlier CAPEX/OPEX import included sites absent from the asset catalogue, run `supabase/em-assets-only.sql`.
 
@@ -172,18 +162,6 @@ The **Migrate CMDB to Supabase** workflow runs `scripts/migrate-cmdb.mjs`. It:
 4. upserts current assets through the service role;
 5. removes stale records only after a valid source is available.
 
-### Fuel plan
-
-The **Sync fuel plans to Supabase** workflow runs hourly and on demand. `scripts/sync-fuel.mjs`:
-
-1. fetches the configured fuel CSV;
-2. rejects HTML/error responses and unexpectedly small imports;
-3. keeps eligible rows with usable next-fueling dates;
-4. upserts by site ID;
-5. removes stale plans only after successful validation.
-
-Central and East are currently represented. West and South can be included when valid plans become available.
-
 ### CAPEX/OPEX
 
 The source workbook is private and must be imported through a controlled database session. Do not commit the workbook, generated import statements or operational request data to the public repository.
@@ -194,7 +172,6 @@ The source workbook is private and must be imported through a controlled databas
 | --- | --- |
 | `.github/workflows/deploy-pages.yml` | Generates public config and deploys the static Pages artifact |
 | `.github/workflows/migrate-cmdb.yml` | Imports the current CMDB into Supabase |
-| `.github/workflows/sync-fuel.yml` | Synchronizes valid fuel plans hourly/on demand |
 | `.github/workflows/codeql.yml` | Scans JavaScript/TypeScript and workflow code |
 
 GitHub Pages must use **GitHub Actions** as its deployment source.
@@ -217,7 +194,7 @@ This is an authenticated internal prototype, so discoverability would be a secur
 - asset summaries use short-lived session caching;
 - map icons are local SVG wrappers around the optimized COW image;
 - scripts and styles are static and cache-versioned;
-- fuel and CAPEX/OPEX requests are paginated from Supabase;
+- CAPEX/OPEX requests are paginated from Supabase;
 - DOM values from source systems are rendered with `textContent`;
 - long tables render bounded batches rather than unlimited rows.
 
@@ -242,7 +219,7 @@ Before deployment:
 - JavaScript files parse without syntax errors.
 - Every local script, stylesheet and image reference resolves.
 - No obsolete “Under development” content remains.
-- CAPEX, OPEX and Fuel routes show only their loading/data/empty/error states.
+- CAPEX and OPEX routes show only their loading/data/empty/error states.
 - Google Maps key restrictions cover the exact Pages origin.
 - Supabase RLS is enabled and tested with an authenticated non-admin user.
 - No service-role key or operational workbook is present in the Pages artifact.
