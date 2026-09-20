@@ -40,7 +40,6 @@ async function siteFuel(){
 async function summaryFuel(){
   const panel=document.querySelector('#fuel-summary');
   if(!panel || new URLSearchParams(location.search).get('view')!=='fuel')return;
-  document.querySelector('#development-panel').hidden=true;
   document.querySelector('#fuel-state').hidden=false;
   try{
     let rows=[];
