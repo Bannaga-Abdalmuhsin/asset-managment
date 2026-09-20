@@ -113,6 +113,12 @@
 .directory-table-wrap { width:100%; overflow-x:auto; border:1px solid #ece4f0; border-radius:11px; }
 .directory-table { width:100%; border-collapse:collapse; table-layout:fixed; text-align:left; }
 .directory-table th { padding:12px 13px; background:#f5eff9; color:#654278; font-size:.69rem; letter-spacing:.04em; text-transform:uppercase; }
+.table-sort { display:inline-flex; align-items:center; gap:7px; width:100%; padding:0; border:0; background:transparent; color:inherit; font:inherit; font-weight:800; letter-spacing:inherit; text-align:left; text-transform:inherit; cursor:pointer; }
+.table-sort::after { content:'↕'; margin-left:auto; color:currentColor; opacity:.38; font-size:.78rem; }
+th[aria-sort='ascending'] .table-sort::after { content:'↑'; opacity:1; }
+th[aria-sort='descending'] .table-sort::after { content:'↓'; opacity:1; }
+.table-sort:hover,.table-sort:focus-visible { color:#4f008c; }
+.em-table th .table-sort:hover,.em-table th .table-sort:focus-visible { color:#fff; text-decoration:underline; text-underline-offset:3px; }
 .directory-table th:nth-child(1) { width:14%; }.directory-table th:nth-child(2) { width:15%; }.directory-table th:nth-child(3) { width:12%; }.directory-table th:nth-child(4) { width:20%; }.directory-table th:nth-child(5) { width:26%; }.directory-table th:nth-child(6) { width:13%; }
 .directory-table td { padding:12px 13px; border-top:1px solid #f0e9f3; color:#493a52; font-size:.78rem; line-height:1.35; overflow-wrap:anywhere; }
 .directory-table tbody tr:nth-child(even) { background:#fcfafd; }
