@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="icon" type="image/svg+xml" href="cow-favicon.svg" />
-  <meta name="description" content="Authorized STC COW site asset, risk, fuel, CAPEX and OPEX record." />
+  <meta name="description" content="Authorized STC COW site asset, risk, CAPEX and OPEX record." />
   <meta name="robots" content="noindex,nofollow,noarchive,nosnippet,noimageindex" />
   <meta name="referrer" content="no-referrer" />
   <meta name="theme-color" content="#4f008c" />
@@ -14,7 +14,6 @@
   <link rel="stylesheet" href="styles.css?v=21" />
   <link rel="stylesheet" href="site.css?v=11" />
   <link rel="stylesheet" href="risk.css?v=3" />
-  <link rel="stylesheet" href="fuel.css?v=1" />
   <link rel="stylesheet" href="em.css?v=2" />
 </head>
 <body class="record-body">
@@ -41,7 +40,6 @@
     <span class="menu-caption">OPERATIONS</span>
     <a href="status.html?view=capex">CAPEX status</a>
     <a href="status.html?view=opex">OPEX status</a>
-    <a href="status.html?view=fuel">Fuel status</a>
     <a class="menu-settings" href="account.html">Settings</a>
   </nav>
   <main class="record-shell">
@@ -53,7 +51,6 @@
         <a id="coordinate-link" class="map-link" target="_blank" rel="noopener noreferrer">Open coordinates ↗</a>
       </header>
       <section id="site-em" class="em-site" aria-label="Site CAPEX and OPEX requests"><h2>CAPEX / OPEX requests</h2><p class="em-empty">Loading requests…</p></section>
-      <section id="site-fuel" class="fuel-site" aria-label="Site fuel status"><h2>Fuel status</h2><p class="fuel-no-plan">Loading fuel plan…</p></section>
       <section id="site-risk" class="risk-panel" aria-label="COWs Risk Flags assessment"><div class="risk-panel-head"><div><h2>COWs Risk Flags</h2></div><span id="site-risk-status" class="risk-pill">Assessment pending</span></div><div id="site-risk-content">Loading risk scenarios…</div></section>
       <nav id="category-nav" class="category-nav" aria-label="Asset system categories"></nav>
       <div id="categories" class="category-list"></div>
@@ -65,7 +62,6 @@
   <script src="risk-engine.js?v=4"></script>
   <script src="site-risk.js?v=6"></script>
   <script src="site.js?v=13"></script>
-  <script type="module" src="fuel-view.mjs?v=2"></script>
   <script type="module" src="em-view.mjs?v=4"></script>
 </body>
 </html>
