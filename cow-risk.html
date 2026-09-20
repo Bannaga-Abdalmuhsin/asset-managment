@@ -12,7 +12,7 @@
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://*.supabase.co; connect-src 'self' https://*.supabase.co; object-src 'none'; base-uri 'self'; form-action 'self'; frame-src 'none'" />
   <title>COWs Risk Flags · stc COW Asset Management</title>
   <link rel="stylesheet" href="styles.css?v=21" />
-  <link rel="stylesheet" href="dashboard.css?v=5" />
+  <link rel="stylesheet" href="dashboard.css?v=6" />
   <link rel="stylesheet" href="risk.css?v=4" />
 </head>
 <body class="dashboard-body risk-dashboard">
@@ -65,12 +65,12 @@
         <section class="dashboard-section risk-directory" id="risk-directory" aria-labelledby="risk-directory-title">
           <div class="directory-head"><div><p class="section-eyebrow">SITE DIRECTORY</p><h2 id="risk-directory-title">Risk flags by COW</h2></div><div class="directory-controls"><label>Search COW ID<input id="risk-search" type="search" placeholder="Enter a COW ID" autocomplete="off" /></label><label>Assessment<select id="risk-filter"><option value="all">All assessments</option><option value="assessed">Assessed</option><option value="risk">At risk</option><option value="safe">Assessed safe</option><option value="pending">Awaiting inputs</option></select></label><label>Region<select id="risk-region"><option value="all">All regions</option><option value="Central">Central</option><option value="East">East</option><option value="South">South</option><option value="West">West</option><option value="Other">Other</option></select></label></div></div>
           <div class="directory-meta"><span id="risk-directory-count" role="status">—</span><button id="risk-clear" type="button" hidden>Clear filters</button></div>
-          <div class="directory-table-wrap"><table class="directory-table risk-table"><thead><tr><th scope="col">COW ID</th><th scope="col">Assessment</th><th scope="col">Region</th><th scope="col">CMDB status</th><th scope="col">Flagged scenarios</th><th scope="col">Record</th></tr></thead><tbody id="risk-list"></tbody></table></div>
+          <div class="directory-table-wrap"><table class="directory-table risk-table"><thead><tr><th scope="col"><button class="table-sort" type="button" data-sort="id">COW ID</button></th><th scope="col" aria-sort="ascending"><button class="table-sort" type="button" data-sort="assessment">Assessment</button></th><th scope="col"><button class="table-sort" type="button" data-sort="region">Region</button></th><th scope="col"><button class="table-sort" type="button" data-sort="status">CMDB status</button></th><th scope="col"><button class="table-sort" type="button" data-sort="scenarios">Flagged scenarios</button></th><th scope="col">Record</th></tr></thead><tbody id="risk-list"></tbody></table></div>
           <button id="risk-more" class="directory-more" type="button" hidden>Show more sites</button>
         </section>
       </div>
     </main>
   </div>
-  <script src="config.js?v=4"></script><script src="auth.js?v=9"></script><script src="risk-engine.js?v=4"></script><script src="cow-risk.js?v=4"></script>
+  <script src="config.js?v=4"></script><script src="auth.js?v=9"></script><script src="risk-engine.js?v=4"></script><script src="cow-risk.js?v=5"></script>
 </body>
 </html>
