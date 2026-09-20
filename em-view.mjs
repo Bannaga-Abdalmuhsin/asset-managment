@@ -39,7 +39,6 @@ function categories(rows,container,selected,onSelect){
 function tableRow(row){const tr=document.createElement('tr'),site=document.createElement('td'),link=node('a','',row.site_id);link.href='site.html?site='+encodeURIComponent(row.site_id);site.append(link);tr.append(site,node('td','',row.element||'—'));const status=document.createElement('td');status.append(badge(row.status_group),node('small','em-workflow',row.workflow_status||'No status'));tr.append(status,node('td','',String(row.id)),node('td','',day(row.last_modified_at||row.created_at)));return tr;}
 async function summary(){
   const view=new URLSearchParams(location.search).get('view');if(!['capex','opex'].includes(view))return;
-  document.querySelector('#development-panel').hidden=true;
   const state=document.querySelector('#em-state');state.hidden=false;
   try{
     const idsPromise=assetIds();
