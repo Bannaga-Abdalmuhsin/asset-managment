@@ -62,10 +62,8 @@ function renderRiskDirectory(assets, assessments) {
     const count=assessed.filter(site=>site.assessment.scenarios.some(scenario=>scenario.flags[area])).length;
     document.querySelector(`#risk-${area}`).textContent=count.toLocaleString();
   }
-  const sorted=joined.sort((a,b)=>{
-    const rank={risk:0,safe:1,pending:2};
-    return rank[assessmentKind(a)]-rank[assessmentKind(b)]||a.id.localeCompare(b.id);
-  });
+  const source=[...joined];
+  const assessmentRank={risk:0,safe:1,pending:2};
   const input=document.querySelector('#risk-search');
   const select=document.querySelector('#risk-filter');
   const region=document.querySelector('#risk-region');
@@ -74,13 +72,32 @@ function renderRiskDirectory(assets, assessments) {
   const count=document.querySelector('#risk-directory-count');
   const clear=document.querySelector('#risk-clear');
   const cards=[...document.querySelectorAll('[data-risk-filter]')];
-  let shown=50;
+  const sortButtons=[...document.querySelectorAll('#risk-directory [data-sort]')];
+  const collator=new Intl.Collator(undefined,{numeric:true,sensitivity:'base'});
+  let shown=50,sortKey='assessment',sortDirection=1;
+  const sortValue=(site,key)=>{
+    if(key==='assessment')return assessmentRank[assessmentKind(site)];
+    if(key==='region')return riskRegion(site.region);
+    if(key==='status')return site.status||'';
+    if(key==='scenarios')return site.assessment?.flaggedScenarioCount??-1;
+    return site.id;
+  };
+  const compare=(a,b)=>{
+    const left=sortValue(a,sortKey),right=sortValue(b,sortKey);
+    return sortDirection*(typeof left==='number'&&typeof right==='number'?left-right:collator.compare(left,right));
+  };
+  const updateSortHeaders=()=>sortButtons.forEach(button=>{
+    const header=button.closest('th'),active=button.dataset.sort===sortKey;
+    if(active)header.setAttribute('aria-sort',sortDirection===1?'ascending':'descending');
+    else header.removeAttribute('aria-sort');
+  });
   const refresh=()=>{
     const query=normalizeRiskId(input.value);
     const filter=select.value;
-    const matching=sorted.filter(site=>site.id.includes(query) &&
+    const matching=source.filter(site=>site.id.includes(query) &&
       (filter==='all'||filter==='assessed'&&site.assessment||filter===assessmentKind(site)) &&
-      (region.value==='all'||riskRegion(site.region)===region.value));
+      (region.value==='all'||riskRegion(site.region)===region.value))
+      .sort(compare);
     const visible=matching.slice(0,shown);
     list.replaceChildren(...visible.map(riskRow));
     if(!matching.length){
@@ -100,6 +117,12 @@ function renderRiskDirectory(assets, assessments) {
     select.value=card.dataset.riskFilter;shown=50;refresh();
     document.querySelector('#risk-directory').scrollIntoView({behavior:'smooth',block:'start'});
   }));
+  sortButtons.forEach(button=>button.addEventListener('click',()=>{
+    const key=button.dataset.sort;
+    if(sortKey===key)sortDirection*=-1;else{sortKey=key;sortDirection=1;}
+    shown=50;updateSortHeaders();refresh();
+  }));
+  updateSortHeaders();
   input.addEventListener('input',()=>{shown=50;refresh();});
   select.addEventListener('change',()=>{shown=50;refresh();});
   region.addEventListener('change',()=>{shown=50;refresh();});
