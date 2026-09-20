@@ -80,13 +80,23 @@ function loadGoogleMaps() {
 
 function renderMap() {
   const kingdomBounds = new google.maps.LatLngBounds({ lat: 16.0, lng: 34.4 }, { lat: 32.6, lng: 55.8 });
+  const cleanMapType = new google.maps.StyledMapType([
+    { featureType: 'road', elementType: 'labels', stylers: [{ visibility: 'off' }] }
+  ], { name: 'Clean' });
   map = new google.maps.Map($('#map'), {
     center: { lat: 24.1, lng: 45.2 }, zoom: 5, minZoom: 2, maxZoom: 19,
-    mapTypeId: 'roadmap', mapTypeControl: true, mapTypeControlOptions: { position: google.maps.ControlPosition.RIGHT_TOP },
+    mapTypeId: 'clean', mapTypeControl: true,
+    mapTypeControlOptions: {
+      position: google.maps.ControlPosition.RIGHT_TOP,
+      style: google.maps.MapTypeControlStyle.DROPDOWN_MENU,
+      mapTypeIds: ['clean', 'roadmap', 'satellite', 'hybrid', 'terrain']
+    },
     zoomControl: true, zoomControlOptions: { position: google.maps.ControlPosition.RIGHT_CENTER },
     streetViewControl: true, streetViewControlOptions: { position: google.maps.ControlPosition.RIGHT_CENTER },
     fullscreenControl: true, scaleControl: true, clickableIcons: false
   });
+  map.mapTypes.set('clean', cleanMapType);
+  map.setMapTypeId('clean');
   map.fitBounds(kingdomBounds, 30);
   infoWindow = new google.maps.InfoWindow();
   fetch('https://raw.githubusercontent.com/johan/world.geo.json/master/countries/SAU.geo.json').then(response => response.json()).then(country => {
@@ -104,7 +114,7 @@ function drawMarkers() {
   markerById.clear();
   assets.forEach(asset => {
     const online = isOnAir(asset.status);
-    const marker = new google.maps.Marker({ map, position: { lat: asset.lat, lng: asset.lon }, title: asset.id, zIndex: 6, optimized:true, icon: { url: online ? 'cow-map-onair.svg?v=2' : 'cow-map-offair.svg?v=2', scaledSize: new google.maps.Size(32, 32), anchor: new google.maps.Point(16, 16) } });
+    const marker = new google.maps.Marker({ map, position: { lat: asset.lat, lng: asset.lon }, title: asset.id, zIndex: 6, optimized:true, icon: { url: online ? 'cow-map-onair.svg?v=2' : 'cow-map-offair.svg?v=3', scaledSize: new google.maps.Size(32, 32), anchor: new google.maps.Point(16, 16) } });
     marker.__asset=asset;
     marker.addListener('click', () => { infoWindow.setContent(`<div class="gm-asset"><b>${escapeHTML(asset.id)}</b><span>${escapeHTML(asset.status || 'Unknown')} · ${escapeHTML(asset.region)}</span><a href="site.html?site=${encodeURIComponent(asset.id)}">View asset record →</a></div>`); infoWindow.open({ map, anchor: marker }); });
     markerById.set(asset.id, marker);
