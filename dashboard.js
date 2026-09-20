@@ -1,14 +1,21 @@
 const dashboardPage = document.body.dataset.dashboardPage;
-const dashboardView = new URLSearchParams(location.search).get('view');
+let dashboardView = new URLSearchParams(location.search).get('view');
 const dashboardNames = { capex: 'CAPEX status', opex: 'OPEX status', fuel: 'Fuel status' };
 
-if (dashboardPage === 'status' && dashboardView === 'summary') location.replace('cow-risk.html');
-
-if (dashboardPage === 'status' && dashboardView !== 'summary') {
-  const view = Object.hasOwn(dashboardNames, dashboardView) ? dashboardView : 'summary';
-  document.querySelector('#view-title').textContent = dashboardNames[view];
-  document.title = `${dashboardNames[view]} · stc COW Asset Management`;
-  document.querySelector(`[data-view="${view}"]`).setAttribute('aria-current', 'page');
+if (dashboardPage === 'status') {
+  if (dashboardView === 'summary') {
+    location.replace('cow-risk.html');
+  } else {
+    if (!Object.hasOwn(dashboardNames, dashboardView)) {
+      dashboardView = 'capex';
+      history.replaceState(null, '', 'status.html?view=capex');
+    }
+    document.querySelector('#view-title').textContent = dashboardNames[dashboardView];
+    document.title = `${dashboardNames[dashboardView]} · stc COW Asset Management`;
+    document.querySelector(`[data-view="${dashboardView}"]`)?.setAttribute('aria-current', 'page');
+    const loadingState = document.querySelector(dashboardView === 'fuel' ? '#fuel-state' : '#em-state');
+    if (loadingState) loadingState.hidden = false;
+  }
 }
 
 const clean = value => String(value ?? '').trim();
