@@ -6,10 +6,16 @@ on:
     paths:
       - .github/workflows/migrate-cmdb.yml
       - scripts/migrate-cmdb.mjs
+  schedule:
+    - cron: '15 * * * *'
   workflow_dispatch:
 
 permissions:
   contents: read
+
+concurrency:
+  group: cmdb-supabase-sync
+  cancel-in-progress: false
 
 jobs:
   migrate:
