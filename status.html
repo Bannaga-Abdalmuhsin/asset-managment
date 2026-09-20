@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="icon" type="image/svg+xml" href="cow-favicon.svg" />
-  <meta name="description" content="Authorized CAPEX, OPEX and fuel status for the national STC COW asset catalogue." />
+  <meta name="description" content="Authorized CAPEX and OPEX status for the national STC COW asset catalogue." />
   <meta name="robots" content="noindex,nofollow,noarchive,nosnippet,noimageindex" />
   <meta name="referrer" content="no-referrer" />
   <meta name="theme-color" content="#4f008c" />
@@ -13,7 +13,6 @@
   <title>Status · stc COW Asset Management</title>
   <link rel="stylesheet" href="styles.css?v=21" />
   <link rel="stylesheet" href="dashboard.css?v=5" />
-  <link rel="stylesheet" href="fuel.css?v=1" />
   <link rel="stylesheet" href="em.css?v=2" />
 </head>
 <body class="dashboard-body" data-dashboard-page="status">
@@ -37,7 +36,6 @@
       <span class="menu-caption">OPERATIONS</span>
       <a href="status.html?view=capex" data-view="capex">CAPEX status</a>
       <a href="status.html?view=opex" data-view="opex">OPEX status</a>
-      <a href="status.html?view=fuel" data-view="fuel">Fuel status</a>
       <a class="menu-settings" href="account.html">Settings</a>
     </nav>
     <main class="dashboard-content">
@@ -61,31 +59,8 @@
         <div class="em-table-wrap"><table class="em-table"><thead><tr><th>Site</th><th>Category</th><th>Request status</th><th>Request ID</th><th>Updated</th></tr></thead><tbody id="em-rows"></tbody></table></div>
         <button id="em-more" class="em-more" type="button" hidden>Show more</button>
       </section>
-      <p id="fuel-state" hidden>Loading fuel plans…</p>
-      <section id="fuel-summary" class="fuel-summary" hidden aria-label="Fuel plan summary">
-        <p id="fuel-asof" class="fuel-intro"></p>
-        <div class="fuel-counts">
-          <div class="fuel-count"><small>Planned sites</small><strong id="fuel-total">—</strong></div>
-          <div class="fuel-count due"><small>Overdue</small><strong id="fuel-due">—</strong></div>
-          <div class="fuel-count today"><small>Today</small><strong id="fuel-today">—</strong></div>
-          <div class="fuel-count soon"><small>Coming soon · 1–3 days</small><strong id="fuel-coming3">—</strong></div>
-          <div class="fuel-count healthy"><small>Healthy · 4+ days</small><strong id="fuel-next15">—</strong></div>
-          <div class="fuel-count"><small>Central</small><strong id="fuel-Central">—</strong></div>
-          <div class="fuel-count"><small>East</small><strong id="fuel-East">—</strong></div>
-        </div>
-        <div class="fuel-toolbar">
-          <input id="fuel-search" type="search" placeholder="Search site ID or city" aria-label="Search fuel plans" />
-          <select id="fuel-region" aria-label="Region"><option value="all">All regions</option><option>Central</option><option>East</option></select>
-          <select id="fuel-filter" aria-label="Fuel plan status"><option value="all">All statuses</option><option value="due">Overdue</option><option value="today">Today</option><option value="coming3">Coming soon</option><option value="next15">Healthy</option></select>
-        </div>
-        <p id="fuel-match-count" class="fuel-intro"></p>
-        <div class="fuel-table-wrap"><table class="fuel-table">
-          <thead><tr><th>Site</th><th>Region</th><th>Next fueling</th><th>Status</th><th>Last fueling</th><th>Last quantity</th></tr></thead>
-          <tbody id="fuel-rows"></tbody>
-        </table></div>
-      </section>
     </main>
   </div>
-  <script src="config.js?v=4"></script><script src="auth.js?v=9"></script><script src="dashboard.js?v=2"></script><script type="module" src="fuel-view.mjs?v=3"></script><script type="module" src="em-view.mjs?v=5"></script>
+  <script src="config.js?v=4"></script><script src="auth.js?v=9"></script><script src="dashboard.js?v=2"></script><script type="module" src="em-view.mjs?v=5"></script>
 </body>
 </html>
