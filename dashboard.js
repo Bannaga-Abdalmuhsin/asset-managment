@@ -1,6 +1,6 @@
 const dashboardPage = document.body.dataset.dashboardPage;
 let dashboardView = new URLSearchParams(location.search).get('view');
-const dashboardNames = { capex: 'CAPEX status', opex: 'OPEX status', fuel: 'Fuel status' };
+const dashboardNames = { capex: 'CAPEX status', opex: 'OPEX status' };
 
 if (dashboardPage === 'status') {
   if (dashboardView === 'summary') {
@@ -13,7 +13,7 @@ if (dashboardPage === 'status') {
     document.querySelector('#view-title').textContent = dashboardNames[dashboardView];
     document.title = `${dashboardNames[dashboardView]} · stc COW Asset Management`;
     document.querySelector(`[data-view="${dashboardView}"]`)?.setAttribute('aria-current', 'page');
-    const loadingState = document.querySelector(dashboardView === 'fuel' ? '#fuel-state' : '#em-state');
+    const loadingState = document.querySelector('#em-state');
     if (loadingState) loadingState.hidden = false;
   }
 }
