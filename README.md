@@ -2,7 +2,7 @@
 
 Internal-facing prototype for managing stc Cells on Wheels (COWs) across Saudi Arabia. The application combines an authenticated national map, CMDB asset records, engineering risk flags, CAPEX/OPEX requests, warehouse location logic, and user profile controls.
 
-> This repository is a prototype hosted on public GitHub Pages. It is not an stc production security boundary. no confidential operational dat has been stored here, service-role credentials, passwords, or unrestricted API keys in browser-delivered files.
+> This repository is a prototype hosted on public GitHub Pages. It is not an stc production security boundary. no confidential operational data has been stored here, service-role credentials, passwords, or unrestricted API keys in browser-delivered files.
 
 ## Live application
 
